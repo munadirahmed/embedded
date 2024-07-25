@@ -1,6 +1,5 @@
 #include "TM4C123GH6PM.h"
 #include "bsp.h"
-#include <intrinsics.h> // for __enable_interrupt()
 
 int main(void) {
     SYSCTL->GPIOHBCTL |= (1U << 5); /* enable AHB for GPIOF */
@@ -18,10 +17,10 @@ int main(void) {
 
     SysTick_Handler();
 
-    __enable_interrupt();
+    __enable_irq();
     while (1) {
-        GPIOF_AHB->DATA_Bits[LED_GREEN] = LED_GREEN;
-        GPIOF_AHB->DATA_Bits[LED_GREEN] = 0U;
+        GPIOF_AHB->DATA_Bits[LED_BLUE] = LED_BLUE;
+        GPIOF_AHB->DATA_Bits[LED_BLUE] = 0U;
     }
     //return 0; // unreachable code
 }

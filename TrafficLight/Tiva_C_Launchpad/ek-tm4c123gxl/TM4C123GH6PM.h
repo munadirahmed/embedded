@@ -3,9 +3,10 @@
 * - defined TARGET_IS_BLIZZARD_RA1 for compatibility with the TI library
 * - in GPIOA_Type struct replaced first __I RESERVED0[255] with
 *   __IO uint32_t DATA_Bits[255] to access the individual GPIOA bits.
+* - added options for the ARMCC v6 compiler (CLANG)
 *
-* Quantum Leaps on 2015-03-07
-* www.state-machine.com
+* Quantum Leaps on 2018-01-31
+* https://www.state-machine.com
 *****************************************************************************/
 
 /****************************************************************************************************//**
@@ -56,7 +57,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 /* -------------------------  Interrupt Number Definition  ------------------------ */
 
@@ -286,14 +286,6 @@ void PWM1Gen2_IRQHandler(void);
 void PWM1Gen3_IRQHandler(void);
 void PWM1Fault_IRQHandler(void);
 
-/**
- * Assertion handler
- *
- * @brief  A function to handle an assertion.
- *         This function should be defined at the application level
- *         and should never return to the caller.
- */
-extern void assert_failed (char const *file, int line);
 
 /** @addtogroup Configuration_of_CMSIS
   * @{
@@ -313,14 +305,20 @@ extern void assert_failed (char const *file, int line);
 #define TARGET_IS_BLIZZARD_RA1         1            /*!< Class of device (for TI library)                                      */
 /** @} */ /* End of group Configuration_of_CMSIS */
 
+#ifdef __cplusplus
+}
+#endif
+
 #include "core_cm4.h"                               /*!< Cortex-M4 processor and core peripherals                              */
-//#include "system_TM4C123GH6PM.h"                    /*!< TM4C123GH6PM System                                                   */
+#include "system_TM4C123GH6PM.h"                    /*!< TM4C123GH6PM System                                                   */
 
 
 /* ================================================================================ */
 /* ================       Device Specific Peripheral Section       ================ */
 /* ================================================================================ */
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /** @addtogroup Device_Peripheral_Registers
   * @{
@@ -331,6 +329,8 @@ extern void assert_failed (char const *file, int line);
 #if defined(__CC_ARM)
   #pragma push
   #pragma anon_unions
+#elif defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+  /* anonymous unions are enabled by default */
 #elif defined(__ICCARM__)
   #pragma language=extended
 #elif defined(__GNUC__)
@@ -1672,6 +1672,8 @@ typedef struct {                                    /*!< UDMA Structure         
 /* --------------------  End of section using anonymous unions  ------------------- */
 #if defined(__CC_ARM)
   #pragma pop
+#elif defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+  /* anonymous unions are enabled by default */
 #elif defined(__ICCARM__)
   /* leave anonymous unions enabled */
 #elif defined(__GNUC__)
