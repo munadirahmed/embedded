@@ -9,7 +9,7 @@
 #define __BSP_H__
 
 /* system clock setting [Hz] - 16MHz */
-#define SYS_CLOCK_HZ 16000000U
+#define SYS_CLOCK_HZ (16000000U)
 
 /* on-board LEDs */
 #define LED_RED   (1U << 1)
