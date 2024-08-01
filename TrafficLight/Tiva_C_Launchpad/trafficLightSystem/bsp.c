@@ -12,11 +12,14 @@
 #include "TM4C123GH6PM.h"
 #include "bsp.h"
 #include  "core_cm4.h"
+#include "app_main.h"
+#include "config.h"
 
+// Define data types and structures
 
 // Define constants
 
-#define SYSTICK_ISR_PERIOD_MS 1000U //[ms] = systick ISR period WARNING: at 16MHz max ISR period is 1.048576sec
+#define SYSTICK_ISR_PERIOD_MS TRAFFIC_LIGHT_SM_EXECUTION_TIME_MS //[ms] = systick ISR period WARNING: at 16MHz max ISR period is 1.048576sec
 
 
 // Declare static global variables
@@ -35,6 +38,7 @@ __attribute__((naked)) void assert_failed (char const *file, int line) {
 // SysTick ISR function definition
 void SysTick_Handler(void) {
     GPIOF_AHB->DATA_Bits[LED_RED] ^= LED_RED;
+    runApplication();
 }
 
 /**
@@ -56,6 +60,25 @@ void sysTickModuleConfig(void)
     uint32_t systick_CLK_SRC_bit = (1U << SysTick_CTRL_CLKSOURCE_Pos);  // use the system clock as the source
 
     SysTick->CTRL = systick_ENABLE_bit | systick_INTEN_bit | systick_CLK_SRC_bit;
+}
+
+/**
+ * Configure the System Timer (SysTick) Module to execute the SysTick ISR at the desired rate
+ *
+ * @param N/A
+ *
+ * @return - N/A
+ */
+void configureGPIO_PortF(void)
+{
+    SYSCTL->GPIOHBCTL |= (1U << 5); /* enable AHB for GPIOF */
+    SYSCTL->RCGCGPIO  |= (1U << 5); /* enable Run mode for GPIOF */
+
+    GPIOF_AHB->DIR |= (LED_RED | LED_BLUE | LED_GREEN);
+    GPIOF_AHB->DEN |= (LED_RED | LED_BLUE | LED_GREEN);
+
+    /* turn all LEDs off */
+    GPIOF_AHB->DATA_Bits[LED_RED | LED_BLUE | LED_GREEN] = 0U;
 }
 
 

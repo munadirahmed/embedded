@@ -19,6 +19,7 @@
 
 #include "TM4C123GH6PM.h"
 #include "bsp.h"
+#include "app_main.h"
 
 // Declare static globals
 
@@ -29,17 +30,13 @@ void initializeSystem(void);
 // Declare function
 
 int main(void) {
-    SYSCTL->GPIOHBCTL |= (1U << 5); /* enable AHB for GPIOF */
-    SYSCTL->RCGCGPIO  |= (1U << 5); /* enable Run mode for GPIOF */
 
-    GPIOF_AHB->DIR |= (LED_RED | LED_BLUE | LED_GREEN);
-    GPIOF_AHB->DEN |= (LED_RED | LED_BLUE | LED_GREEN);
-
-    /* turn all LEDs off */
-    GPIOF_AHB->DATA_Bits[LED_RED | LED_BLUE | LED_GREEN] = 0U;
 
     // Configure the system
     initializeSystem();
+
+    // Initialize the application
+    initializeApplication();
 
     __enable_irq();
     while (1) {
@@ -59,4 +56,5 @@ int main(void) {
 void initializeSystem(void)
 {
     sysTickModuleConfig();  // Configure the System Timer module
+    configureGPIO_PortF();
 }

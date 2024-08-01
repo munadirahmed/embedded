@@ -17,5 +17,6 @@
 #define LED_GREEN (1U << 3)
 
 void sysTickModuleConfig(void);
+void configureGPIO_PortF(void);
 
 #endif // __BSP_H__
