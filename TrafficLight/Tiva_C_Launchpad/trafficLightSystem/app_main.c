@@ -69,6 +69,16 @@ static void onStateEnterTrafficLightMainSm_Normal(trafficLightClass_t *tl_sm_obj
 static void onStateEnterTrafficLightMainSm_Flashing(trafficLightClass_t *tl_sm_obj_ptr);   // Not inlined as could be called from multiple transitions
 static void onStateEnterTrafficLightMainSm_Error(trafficLightClass_t *tl_sm_obj_ptr);   // Not inlined as could be called from multiple transitions
 
+static inline boolean checkStateTransitionOutCondition_Init(trafficLightClass_t *tl_sm_obj_ptr);
+static inline boolean checkStateTransitionOutCondition_Normal(trafficLightClass_t *tl_sm_obj_ptr);
+static inline boolean checkStateTransitionOutCondition_Flashing(trafficLightClass_t *tl_sm_obj_ptr);
+static inline boolean checkStateTransitionOutCondition_Error(trafficLightClass_t *tl_sm_obj_ptr);
+
+static inline void runStateTrafficLightSm_Init(trafficLightClass_t *tl_sm_obj_ptr);
+static inline void runStateTrafficLightSm_Normal(trafficLightClass_t *tl_sm_obj_ptr);
+static inline void runStateTrafficLightSm_Flashing(trafficLightClass_t *tl_sm_obj_ptr);
+static inline void runStateTrafficLightSm_Error(trafficLightClass_t *tl_sm_obj_ptr);
+
 static inline void runTrafficLightStateMachine(trafficLightClass_t *tl_sm_obj_ptr);
 
 // All Normal sub-state machine helper functions
@@ -141,15 +151,117 @@ void runApplication(void)
 // Local functions
 
 /**
- * Tasks to perform upon entry of main state machine to INIT state
+ * Check for transition out condition of main state machine: INIT state
+ *
+ * @param *tl_sm_obj_ptr -> pointer to a traffic light state machine object
+ *
+ * @return - true/false on whether to transition out of the state or not
+ */
+static inline boolean checkStateTransitionOutCondition_Init(trafficLightClass_t *tl_sm_obj_ptr)
+{
+    boolean rtn = false;
+    if( (0U == tl_sm_obj_ptr->timer) )
+    {
+        // Ready to transition - Initialize all parameters
+        tl_sm_obj_ptr->currentMainState= NORMAL;
+        tl_sm_obj_ptr->currentNrmlModeSubState = NORMAL_MODE_ALL_LANES_RED;
+        onStateEnterTrafficLightNormalSubSm_AllLanesRed(tl_sm_obj_ptr);
+        rtn = true;
+    }else
+    {
+        //do nothing
+    }
+
+    return rtn;
+
+}
+
+/**
+ * Check for transition out condition of main state machine: NORMAL state
+ *
+ * @param *tl_sm_obj_ptr -> pointer to a traffic light state machine object
+ *
+ * @return - true/false on whether to transition out of the state or not
+ */
+static inline boolean checkStateTransitionOutCondition_Normal(trafficLightClass_t *tl_sm_obj_ptr)
+{
+//TODO: implement transitions
+
+}
+
+/**
+ * Check for transition out condition of main state machine: FLASHING state
+ *
+ * @param *tl_sm_obj_ptr -> pointer to a traffic light state machine object
+ *
+ * @return - true/false on whether to transition out of the state or not
+ */
+static inline boolean checkStateTransitionOutCondition_Flashing(trafficLightClass_t *tl_sm_obj_ptr)
+{
+    //TODO: implement transitions
+}
+
+/**
+ * Check for transition out condition of main state machine: ERROR state
+ *
+ * @param *tl_sm_obj_ptr -> pointer to a traffic light state machine object
+ *
+ * @return - true/false on whether to transition out of the state or not
+ */
+static inline boolean checkStateTransitionOutCondition_Error(trafficLightClass_t *tl_sm_obj_ptr)
+{
+    //TODO: implement transitions
+}
+
+/**
+ * Tasks to perform while in normal mode sub-state machine: INIT state
  *
  * @param *tl_sm_obj_ptr -> pointer to a traffic light state machine object
  *
  * @return - N/A
  */
-static void onStateEnterTrafficLightMainSm_Init(trafficLightClass_t *tl_sm_obj_ptr)
+static inline void runStateTrafficLightSm_Init(trafficLightClass_t *tl_sm_obj_ptr)
 {
-    tl_sm_obj_ptr->timer = TRAFFIC_LIGHT_SYSTEM_INIT_COUNT;
+    checkStateTransitionOutCondition_Init(tl_sm_obj_ptr);
+}
+
+/**
+ * Tasks to perform while in normal mode sub-state machine: NORMAL state
+ *
+ * @param *tl_sm_obj_ptr -> pointer to a traffic light state machine object
+ *
+ * @return - N/A
+ */
+static inline void runStateTrafficLightSm_Normal(trafficLightClass_t *tl_sm_obj_ptr)
+{
+    checkStateTransitionOutCondition_Normal(tl_sm_obj_ptr);
+    runTrafficLightNormalModeSubStateMachine(tl_sm_obj_ptr);
+
+}
+
+/**
+ * Check for transition out condition of main state machine: FLASHING state
+ *
+ * @param *tl_sm_obj_ptr -> pointer to a traffic light state machine object
+ *
+ * @return - N/A
+ */
+static inline void runStateTrafficLightSm_Flashing(trafficLightClass_t *tl_sm_obj_ptr)
+{
+    checkStateTransitionOutCondition_Flashing(tl_sm_obj_ptr);
+    //TODOL implement runTrafficLightFlashingModeSubStateMachine(tl_sm_obj_ptr);
+}
+
+/**
+ * Check for transition out condition of main state machine: ERROR state
+ *
+ * @param *tl_sm_obj_ptr -> pointer to a traffic light state machine object
+ *
+ * @return - N/A
+ */
+static inline void runStateTrafficLightSm_Error(trafficLightClass_t *tl_sm_obj_ptr)
+{
+    checkStateTransitionOutCondition_Error(tl_sm_obj_ptr);
 }
 
 /**
@@ -198,6 +310,22 @@ static void onStateEnterTrafficLightMainSm_Error(trafficLightClass_t *tl_sm_obj_
 {
 // TODO: add handling of error state
 }
+
+/**
+ * Tasks to perform upon entry of main state machine to INIT state
+ *
+ * @param *tl_sm_obj_ptr -> pointer to a traffic light state machine object
+ *
+ * @return - N/A
+ */
+static void onStateEnterTrafficLightMainSm_Init(trafficLightClass_t *tl_sm_obj_ptr)
+{
+    tl_sm_obj_ptr->timer = TRAFFIC_LIGHT_SYSTEM_INIT_COUNT;
+    tl_sm_obj_ptr->currentNrmlModeSubState = NORMAL_MODE_IDLE;  // set the Normal mode sub-state machine to ALL_LANES_RED
+    trafficLightObject.currentFlshingModeSubState = FLASHING_MODE_IDLE; // reset flashing mode sub-state machine to IDLE
+
+}
+
 
 /**
  * Tasks to perform upon entry of normal mode sub-state machine: ALL LANES RED state
@@ -268,7 +396,7 @@ static void onStateEnterTrafficLightNormalSubSm_SecRoadYllw(trafficLightClass_t 
  *
  * @param *tl_sm_obj_ptr -> pointer to a traffic light state machine object
  *
- * @return - N/A
+ * @return - true/false on whether to transition out of the state or not
  */
 static inline boolean checkSubStateTransitionOutCondition_AllLanesRed(trafficLightClass_t *tl_sm_obj_ptr)
 {
@@ -354,7 +482,7 @@ static inline boolean checkSubStateTransitionOutCondition_SecRoadGrn(trafficLigh
     {
         // Ready to transition - Set primary road to yellow and initialize all parameters for state entry
         tl_sm_obj_ptr->currentNrmlModeSubState = NORMAL_MODE_SECONDARY_ROAD_YELLOW;
-        onStateEnterTrafficLightNormalSubSm_SecRoadYlw(tl_sm_obj_ptr);
+        onStateEnterTrafficLightNormalSubSm_SecRoadYllw(tl_sm_obj_ptr);
         rtn = true;
     }else
     {
@@ -472,16 +600,16 @@ static inline void runTrafficLightStateMachine(trafficLightClass_t *tl_sm_obj_pt
     switch (tl_sm_obj_ptr->currentMainState)
     {
     case INIT:
-        //Do nothing To lights
+        runStateTrafficLightSm_Init(tl_sm_obj_ptr);
         break;
     case NORMAL:
-        runTrafficLightNormalModeSubStateMachine(tl_sm_obj_ptr);
+        runStateTrafficLightSm_Normal(tl_sm_obj_ptr);
         break;
     case FLASHING:
-        //TODO: add handling for runTrafficLightFlashingModeSubStateMachine(tl_sm_obj_ptr);
+        runStateTrafficLightSm_Flashing(tl_sm_obj_ptr);
         break;
     case ERROR:
-        //TODO:add handling for error state
+        runStateTrafficLightSm_Error(tl_sm_obj_ptr);
         break;
     default:
         //Should never get here
@@ -513,7 +641,7 @@ static inline void runTrafficLightNormalModeSubStateMachine(trafficLightClass_t 
         runSubStateTrafficLightNormalSubSm_PriRoadYllw(tl_sm_obj_ptr);
         break;
     case NORMAL_MODE_SECONDARY_ROAD_GREEN:
-        runSubStateTrafficLightNormalSubSm_PriRoadYllw(tl_sm_obj_ptr);
+        runSubStateTrafficLightNormalSubSm_SecRoadGrn(tl_sm_obj_ptr);
         break;
     case NORMAL_MODE_SECONDARY_ROAD_YELLOW:
         runSubStateTrafficLightNormalSubSm_SecRoadYllw(tl_sm_obj_ptr);
