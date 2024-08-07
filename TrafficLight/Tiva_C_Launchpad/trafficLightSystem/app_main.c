@@ -13,6 +13,7 @@
 
 #include "app_main.h"
 #include "config.h"
+#include "bsp.h"
 
 /***************  Define data types and structures ********************/
 
@@ -22,12 +23,6 @@ typedef enum {
     FLASHING,
     ERROR
 } trafficLight_MainStates_t;
-
-typedef enum {
-    TRAFFIC_LIGHT_COLOR_RED= 0U,
-    TRAFFIC_LIGHT_COLOR_YELLOW,
-    TRAFFIC_LIGHT_COLOR_GREEN
-} trafficLight_Color_t;
 
 typedef enum {
     NORMAL_MODE_IDLE= 0U,
@@ -173,7 +168,7 @@ static inline boolean checkStateTransitionOutCondition_Init(trafficLightClass_t 
         // Ready to transition - Initialize all parameters
         tl_sm_obj_ptr->currentMainState= NORMAL;
         tl_sm_obj_ptr->currentNrmlModeSubState = NORMAL_MODE_ALL_LANES_RED;
-        onStateEnterTrafficLightNormalSubSm_AllLanesRed(tl_sm_obj_ptr);
+        onStateEnterTrafficLightMainSm_Normal(tl_sm_obj_ptr);
         rtn = true;
     }else
     {
@@ -289,6 +284,8 @@ static void onStateEnterTrafficLightMainSm_Normal(trafficLightClass_t *tl_sm_obj
     trafficLightObject.roadForNextGrnLight = PRIMARY_ROAD;   // Always start with primary road when entering Normal mode from other modes
 
     onStateEnterTrafficLightNormalSubSm_AllLanesRed(tl_sm_obj_ptr);  // Initialize parameters for all lanes red
+    set_digital_out(OM_DIG_CH_PRIMARY_ROAD, trafficLightObject.primaryRoadTrafficLight);
+    set_digital_out(OM_DIG_CH_SECONDARY_ROAD, trafficLightObject.secondaryRoadTrafficLight);
 
 }
 
@@ -307,7 +304,9 @@ static void onStateEnterTrafficLightMainSm_Flashing(trafficLightClass_t *tl_sm_o
     trafficLightObject.secondaryRoadTrafficLight = TRAFFIC_LIGHT_COLOR_RED;
     trafficLightObject.currentFlshingModeSubState = FLASHING_MODE_ALL_LANES_RED;
 
-    onStateEnterTrafficLightFlashingSubSm_AllLanesRed(tl_sm_obj_ptr);  // Initialize parameters for all lanes red
+    //onStateEnterTrafficLightFlashingSubSm_AllLanesRed(tl_sm_obj_ptr);  // Initialize parameters for all lanes red
+    set_digital_out(OM_DIG_CH_PRIMARY_ROAD, trafficLightObject.primaryRoadTrafficLight);
+    set_digital_out(OM_DIG_CH_SECONDARY_ROAD, trafficLightObject.secondaryRoadTrafficLight);
 }
 
 
@@ -323,6 +322,8 @@ static void onStateEnterTrafficLightMainSm_Error(trafficLightClass_t *tl_sm_obj_
 // TODO: add handling of error state
     trafficLightObject.primaryRoadTrafficLight = TRAFFIC_LIGHT_COLOR_RED;
     trafficLightObject.secondaryRoadTrafficLight = TRAFFIC_LIGHT_COLOR_RED;
+    set_digital_out(OM_DIG_CH_PRIMARY_ROAD, trafficLightObject.primaryRoadTrafficLight);
+    set_digital_out(OM_DIG_CH_SECONDARY_ROAD, trafficLightObject.secondaryRoadTrafficLight);
 }
 
 /**
@@ -339,6 +340,8 @@ static void onStateEnterTrafficLightMainSm_Init(trafficLightClass_t *tl_sm_obj_p
     trafficLightObject.currentFlshingModeSubState = FLASHING_MODE_IDLE; // reset flashing mode sub-state machine to IDLE
     trafficLightObject.primaryRoadTrafficLight = TRAFFIC_LIGHT_COLOR_RED;
     trafficLightObject.secondaryRoadTrafficLight = TRAFFIC_LIGHT_COLOR_RED;
+    set_digital_out(OM_DIG_CH_PRIMARY_ROAD, trafficLightObject.primaryRoadTrafficLight);
+    set_digital_out(OM_DIG_CH_SECONDARY_ROAD, trafficLightObject.secondaryRoadTrafficLight);
 }
 
 
@@ -354,6 +357,8 @@ static void onStateEnterTrafficLightNormalSubSm_AllLanesRed(trafficLightClass_t 
     tl_sm_obj_ptr->timer = NORMAL_MODE_MINIMUM_BOTH_LANE_RED_COUNT;  // Update timer to spend minimum time in sub-state
     trafficLightObject.primaryRoadTrafficLight = TRAFFIC_LIGHT_COLOR_RED;
     trafficLightObject.secondaryRoadTrafficLight = TRAFFIC_LIGHT_COLOR_RED;
+    set_digital_out(OM_DIG_CH_PRIMARY_ROAD, trafficLightObject.primaryRoadTrafficLight);
+    set_digital_out(OM_DIG_CH_SECONDARY_ROAD, trafficLightObject.secondaryRoadTrafficLight);
 }
 
 /**
@@ -370,6 +375,8 @@ static void onStateEnterTrafficLightNormalSubSm_PriRoadGrn(trafficLightClass_t *
     tl_sm_obj_ptr->roadForNextGrnLight = SECONDARY_ROAD;    // Now that primary road is already serviced switch to secondary road for next time
     trafficLightObject.primaryRoadTrafficLight = TRAFFIC_LIGHT_COLOR_GREEN;
     trafficLightObject.secondaryRoadTrafficLight = TRAFFIC_LIGHT_COLOR_RED;
+    set_digital_out(OM_DIG_CH_PRIMARY_ROAD, trafficLightObject.primaryRoadTrafficLight);
+    set_digital_out(OM_DIG_CH_SECONDARY_ROAD, trafficLightObject.secondaryRoadTrafficLight);
 }
 
 /**
@@ -384,6 +391,8 @@ static void onStateEnterTrafficLightNormalSubSm_PriRoadYllw(trafficLightClass_t 
     tl_sm_obj_ptr->timer = NORMAL_MODE_MINIMUM_YELLOW_LIGHT_SIGNAL_COUNT;  // Update timer to spend minimum time in sub-state
     trafficLightObject.primaryRoadTrafficLight = TRAFFIC_LIGHT_COLOR_YELLOW;
     trafficLightObject.secondaryRoadTrafficLight = TRAFFIC_LIGHT_COLOR_RED;
+    set_digital_out(OM_DIG_CH_PRIMARY_ROAD, trafficLightObject.primaryRoadTrafficLight);
+    set_digital_out(OM_DIG_CH_SECONDARY_ROAD, trafficLightObject.secondaryRoadTrafficLight);
 }
 
 /**
@@ -400,6 +409,8 @@ static void onStateEnterTrafficLightNormalSubSm_SecRoadGrn(trafficLightClass_t *
     tl_sm_obj_ptr->roadForNextGrnLight = PRIMARY_ROAD;    // Now that secondary road is already serviced switch to secondary road for next time
     trafficLightObject.primaryRoadTrafficLight = TRAFFIC_LIGHT_COLOR_RED;
     trafficLightObject.secondaryRoadTrafficLight = TRAFFIC_LIGHT_COLOR_GREEN;
+    set_digital_out(OM_DIG_CH_PRIMARY_ROAD, trafficLightObject.primaryRoadTrafficLight);
+    set_digital_out(OM_DIG_CH_SECONDARY_ROAD, trafficLightObject.secondaryRoadTrafficLight);
 }
 
 /**
@@ -414,6 +425,8 @@ static void onStateEnterTrafficLightNormalSubSm_SecRoadYllw(trafficLightClass_t 
     tl_sm_obj_ptr->timer = NORMAL_MODE_MINIMUM_YELLOW_LIGHT_SIGNAL_COUNT;  // Update timer to spend minimum time in sub-state
     trafficLightObject.primaryRoadTrafficLight = TRAFFIC_LIGHT_COLOR_RED;
     trafficLightObject.secondaryRoadTrafficLight = TRAFFIC_LIGHT_COLOR_YELLOW;
+    set_digital_out(OM_DIG_CH_PRIMARY_ROAD, trafficLightObject.primaryRoadTrafficLight);
+    set_digital_out(OM_DIG_CH_SECONDARY_ROAD, trafficLightObject.secondaryRoadTrafficLight);
 }
 
 /**

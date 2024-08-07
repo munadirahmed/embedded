@@ -8,6 +8,7 @@
 
 // Module used
 #include <stdint.h>
+#include <stdio.h>
 
 #include "TM4C123GH6PM.h"
 #include "bsp.h"
@@ -37,7 +38,7 @@ __attribute__((naked)) void assert_failed (char const *file, int line) {
 
 // SysTick ISR function definition
 void SysTick_Handler(void) {
-    GPIOF_AHB->DATA_Bits[LED_RED] ^= LED_RED;
+    //GPIOF_AHB->DATA_Bits[LED_RED] ^= LED_RED;
     runApplication();
 }
 
@@ -63,7 +64,7 @@ void sysTickModuleConfig(void)
 }
 
 /**
- * Configure the System Timer (SysTick) Module to execute the SysTick ISR at the desired rate
+ * Configure GPIO Port F
  *
  * @param N/A
  *
@@ -79,6 +80,41 @@ void configureGPIO_PortF(void)
 
     /* turn all LEDs off */
     GPIOF_AHB->DATA_Bits[LED_RED | LED_BLUE | LED_GREEN] = 0U;
+}
+
+/**
+ * Configure the System Timer (SysTick) Module to execute the SysTick ISR at the desired rate
+ *
+ * @param N/A
+ *
+ * @return - N/A
+ */
+void set_digital_out(om_dig_ch_t ch,trafficLight_Color_t lightColor)
+{
+    GPIOA_Type * ptr = 0;
+    if(ch == OM_DIG_CH_PRIMARY_ROAD)
+    {
+        ptr = GPIOF_AHB;
+    }else if(ch == OM_DIG_CH_SECONDARY_ROAD)
+    {
+        //TODO: assign an output ptr = GPIOD_AHB;
+    }else
+    {
+        // Do Nothing
+    }
+
+    uint8_t lightOutput = 0U;
+    if(TRAFFIC_LIGHT_COLOR_GREEN == lightColor){
+        lightOutput = LED_GREEN;
+    }else if(TRAFFIC_LIGHT_COLOR_YELLOW == lightColor)
+    {
+        lightOutput = LED_BLUE;
+    }else
+    {
+        lightOutput = LED_RED;
+    }
+    /* Set the output for the corresponding digital output channel */
+    ptr->DATA_Bits[LED_RED | LED_BLUE | LED_GREEN] = lightOutput;
 }
 
 

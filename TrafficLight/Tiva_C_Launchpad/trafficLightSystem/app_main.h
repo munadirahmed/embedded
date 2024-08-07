@@ -8,6 +8,12 @@
 #ifndef APP_MAIN_H_
 #define APP_MAIN_H_
 
+typedef enum {
+    TRAFFIC_LIGHT_COLOR_RED= 0U,
+    TRAFFIC_LIGHT_COLOR_YELLOW,
+    TRAFFIC_LIGHT_COLOR_GREEN
+} trafficLight_Color_t;
+
 void initializeApplication(void);
 void runApplication(void);
 

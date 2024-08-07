@@ -40,8 +40,8 @@ int main(void) {
 
     __enable_irq();
     while (1) {
-        GPIOF_AHB->DATA_Bits[LED_BLUE] = LED_BLUE;
-        GPIOF_AHB->DATA_Bits[LED_BLUE] = 0U;
+        //GPIOF_AHB->DATA_Bits[LED_BLUE] = LED_BLUE;
+        //GPIOF_AHB->DATA_Bits[LED_BLUE] = 0U;
     }
     //return 0; // unreachable code
 }
