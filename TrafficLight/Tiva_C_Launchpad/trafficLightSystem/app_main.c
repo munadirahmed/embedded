@@ -69,8 +69,8 @@ static trafficLightClass_t trafficLightObject;
 // All main state machine entry actions for each state
 static void onStateEnterTrafficLightMainSm_Init(trafficLightClass_t *tl_sm_obj_ptr);   // Not inlined as could be called from multiple transitions
 static void onStateEnterTrafficLightMainSm_Normal(trafficLightClass_t *tl_sm_obj_ptr);   // Not inlined as could be called from multiple transitions
-static void onStateEnterTrafficLightMainSm_Flashing(trafficLightClass_t *tl_sm_obj_ptr);   // Not inlined as could be called from multiple transitions
-static void onStateEnterTrafficLightMainSm_Error(trafficLightClass_t *tl_sm_obj_ptr);   // Not inlined as could be called from multiple transitions
+//static void onStateEnterTrafficLightMainSm_Flashing(trafficLightClass_t *tl_sm_obj_ptr);   // Not inlined as could be called from multiple transitions
+//static void onStateEnterTrafficLightMainSm_Error(trafficLightClass_t *tl_sm_obj_ptr);   // Not inlined as could be called from multiple transitions
 
 static inline boolean checkStateTransitionOutCondition_Init(trafficLightClass_t *tl_sm_obj_ptr);
 static inline boolean checkStateTransitionOutCondition_Normal(trafficLightClass_t *tl_sm_obj_ptr);
@@ -189,7 +189,7 @@ static inline boolean checkStateTransitionOutCondition_Init(trafficLightClass_t 
 static inline boolean checkStateTransitionOutCondition_Normal(trafficLightClass_t *tl_sm_obj_ptr)
 {
 //TODO: implement transitions
-
+    return false;
 }
 
 /**
@@ -202,6 +202,7 @@ static inline boolean checkStateTransitionOutCondition_Normal(trafficLightClass_
 static inline boolean checkStateTransitionOutCondition_Flashing(trafficLightClass_t *tl_sm_obj_ptr)
 {
     //TODO: implement transitions
+    return false;
 }
 
 /**
@@ -214,6 +215,7 @@ static inline boolean checkStateTransitionOutCondition_Flashing(trafficLightClas
 static inline boolean checkStateTransitionOutCondition_Error(trafficLightClass_t *tl_sm_obj_ptr)
 {
     //TODO: implement transitions
+    return false;
 }
 
 /**
@@ -296,7 +298,7 @@ static void onStateEnterTrafficLightMainSm_Normal(trafficLightClass_t *tl_sm_obj
  *
  * @return - N/A
  */
-static void onStateEnterTrafficLightMainSm_Flashing(trafficLightClass_t *tl_sm_obj_ptr)
+/*static void onStateEnterTrafficLightMainSm_Flashing(trafficLightClass_t *tl_sm_obj_ptr)
 {
    // TODO: finalize implementation
     tl_sm_obj_ptr->currentNrmlModeSubState = NORMAL_MODE_IDLE;  // reset flashing mode sub-state machine
@@ -307,7 +309,7 @@ static void onStateEnterTrafficLightMainSm_Flashing(trafficLightClass_t *tl_sm_o
     //onStateEnterTrafficLightFlashingSubSm_AllLanesRed(tl_sm_obj_ptr);  // Initialize parameters for all lanes red
     set_digital_out(OM_DIG_CH_PRIMARY_ROAD, trafficLightObject.primaryRoadTrafficLight);
     set_digital_out(OM_DIG_CH_SECONDARY_ROAD, trafficLightObject.secondaryRoadTrafficLight);
-}
+}*/
 
 
 /**
@@ -317,14 +319,14 @@ static void onStateEnterTrafficLightMainSm_Flashing(trafficLightClass_t *tl_sm_o
  *
  * @return - N/A
  */
-static void onStateEnterTrafficLightMainSm_Error(trafficLightClass_t *tl_sm_obj_ptr)
+/*static void onStateEnterTrafficLightMainSm_Error(trafficLightClass_t *tl_sm_obj_ptr)
 {
 // TODO: add handling of error state
     trafficLightObject.primaryRoadTrafficLight = TRAFFIC_LIGHT_COLOR_RED;
     trafficLightObject.secondaryRoadTrafficLight = TRAFFIC_LIGHT_COLOR_RED;
     set_digital_out(OM_DIG_CH_PRIMARY_ROAD, trafficLightObject.primaryRoadTrafficLight);
     set_digital_out(OM_DIG_CH_SECONDARY_ROAD, trafficLightObject.secondaryRoadTrafficLight);
-}
+}*/
 
 /**
  * Tasks to perform upon entry of main state machine to INIT state

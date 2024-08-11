@@ -64,22 +64,33 @@ void sysTickModuleConfig(void)
 }
 
 /**
- * Configure GPIO Port F
+ * Configure GPIO Port F as primary road and Port D as secondary road lights
  *
  * @param N/A
  *
  * @return - N/A
  */
-void configureGPIO_PortF(void)
+void configureGPIO_TrafficLightPorts(void)
 {
+    // Configure Port F (Main Road LED)
     SYSCTL->GPIOHBCTL |= (1U << 5); /* enable AHB for GPIOF */
     SYSCTL->RCGCGPIO  |= (1U << 5); /* enable Run mode for GPIOF */
 
-    GPIOF_AHB->DIR |= (LED_RED | LED_BLUE | LED_GREEN);
-    GPIOF_AHB->DEN |= (LED_RED | LED_BLUE | LED_GREEN);
+    GPIOF_AHB->DIR |= (LED_RED | LED_YELLOW | LED_GREEN);
+    GPIOF_AHB->DEN |= (LED_RED | LED_YELLOW | LED_GREEN);
 
     /* turn all LEDs off */
-    GPIOF_AHB->DATA_Bits[LED_RED | LED_BLUE | LED_GREEN] = 0U;
+    GPIOF_AHB->DATA_Bits[LED_RED | LED_YELLOW | LED_GREEN] = 0U;
+
+    // Configure Port D (Secondary Road LED)
+    SYSCTL->GPIOHBCTL |= (1U << 3); /* enable AHB for GPIOD */
+    SYSCTL->RCGCGPIO  |= (1U << 3); /* enable Run mode for GPIOD */
+
+    GPIOD_AHB->DIR |= (LED_RED | LED_YELLOW | LED_GREEN);
+    GPIOD_AHB->DEN |= (LED_RED | LED_YELLOW | LED_GREEN);
+
+    /* turn all LEDs off */
+    GPIOD_AHB->DATA_Bits[LED_RED | LED_YELLOW | LED_GREEN] = 0U;
 }
 
 /**
@@ -97,7 +108,7 @@ void set_digital_out(om_dig_ch_t ch,trafficLight_Color_t lightColor)
         ptr = GPIOF_AHB;
     }else if(ch == OM_DIG_CH_SECONDARY_ROAD)
     {
-        //TODO: assign an output ptr = GPIOD_AHB;
+        ptr = GPIOD_AHB;
     }else
     {
         // Do Nothing
@@ -108,13 +119,13 @@ void set_digital_out(om_dig_ch_t ch,trafficLight_Color_t lightColor)
         lightOutput = LED_GREEN;
     }else if(TRAFFIC_LIGHT_COLOR_YELLOW == lightColor)
     {
-        lightOutput = LED_BLUE;
+        lightOutput = LED_YELLOW;
     }else
     {
         lightOutput = LED_RED;
     }
     /* Set the output for the corresponding digital output channel */
-    ptr->DATA_Bits[LED_RED | LED_BLUE | LED_GREEN] = lightOutput;
+    ptr->DATA_Bits[LED_RED | LED_YELLOW | LED_GREEN] = lightOutput;
 }
 
 

@@ -19,12 +19,12 @@ typedef enum {
 #define SYS_CLOCK_HZ (16000000U)
 
 /* on-board LEDs */
-#define LED_RED   (1U << 1)
-#define LED_BLUE  (1U << 2)
-#define LED_GREEN (1U << 3)
+#define LED_RED     (1U << 1)
+#define LED_YELLOW  (1U << 2)
+#define LED_GREEN   (1U << 3)
 
 void sysTickModuleConfig(void);
-void configureGPIO_PortF(void);
+void configureGPIO_TrafficLightPorts(void);
 void set_digital_out(om_dig_ch_t ch,trafficLight_Color_t lightColor);
 
 #endif // __BSP_H__

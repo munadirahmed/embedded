@@ -56,5 +56,5 @@ int main(void) {
 void initializeSystem(void)
 {
     sysTickModuleConfig();  // Configure the System Timer module
-    configureGPIO_PortF();
+    configureGPIO_TrafficLightPorts();
 }
