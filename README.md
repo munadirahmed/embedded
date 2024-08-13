@@ -23,7 +23,7 @@ Each project folder contains the source code, schematics, and detailed documenta
 ### Traffic Light Control System
 
 - **Description:** A state machine-based traffic light control system implemented on the Tiva C Launchpad. The system controls the traffic flow at an intersection, using timed transitions between states for the primary and secondary roads.
-- [**Project Files**](\TrafficLight)
+- [**Project Files**](/TrafficLight)
 
 ## Tools & Environments
 
