@@ -121,7 +121,7 @@ This state machine ensures a safe and orderly flow of traffic at the intersectio
 
 The state machine was implemented on the Tiva C Launchpad using Code Composer Studio (CCS) version 12.7.1 with the GNU compiler (v9.2.1 Linaro). The implementation leverages startup code provided by Quantum Leaps and CMSIS v5.0.1, ensuring a robust and efficient control system for the traffic light application.
 
-The CCS project and all project code can be found in [trafficLightSystem](./Tiva_C_Launchpad\trafficLightSystem/) folder .
+The CCS project and all project code can be found in [trafficLightSystem](./Tiva_C_Launchpad/trafficLightSystem/) folder .
 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
