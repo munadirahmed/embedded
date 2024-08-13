@@ -38,10 +38,7 @@
   <summary>Table of Contents</summary>
   <ol>
     <li>
-      <a href="#about-the-project">About The Project</a>
-      <ul>
-        <li><a href="#built-with">Built With</a></li>
-      </ul>
+      <a href="#system-design">System Design</a>
     </li>
     <li>
       <a href="#getting-started">Getting Started</a>
@@ -61,25 +58,56 @@
 
 
 
-<!-- ABOUT THE PROJECT -->
-## About The Project
+<!-- System Design -->
+## System Design
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
+<div align="center">
+<a >
+    <img src="images/trafficLight_stateMachinev100.png" alt="Traffic Light State Machine">
+</a>
+</div>
 
-There are many great README templates available on GitHub; however, I didn't find one that really suited my needs so I created this enhanced one. I want to create a README template so amazing that it'll be the last one you ever need -- I think this is it.
+This state machine diagram represents the operation of a traffic light control system, managing the signal flow for two intersecting roads, referred to as the "Primary Road" and "Secondary Road." The system transitions through various states to control the timing of traffic signals. Below is an explanation of each state and the transitions:
 
-Here's why:
-* Your time should be focused on creating something amazing. A project that solves a problem and helps others
-* You shouldn't be doing the same tasks over and over like creating a README from scratch
-* You should implement DRY principles to the rest of your life :smile:
+1. **Initialize:**
+   - This is the starting state where the system initializes. The transition from this state occurs when the initialization timer (`T_st > T_init`) completes.
+   - In the `Initialize` state, the `roadForNextGrnLight` parameter is set to designate the primary road as the next to receive a green light.
 
-Of course, no one template will serve all projects since your needs may be different. So I'll be adding more in the near future. You may also suggest changes by forking this repo and creating a pull request or opening an issue. Thanks to all the people have contributed to expanding this template!
+2. **Both Roads Red:**
+   - After initialization, the system enters a state where both roads display a red light. This state is a buffer period to ensure both roads stop before allowing any road to go green.
+   - The system remains in this state until a timer (`T_st > T1`) triggers the next transition.
 
-Use the `BLANK_README.md` to get started.
+3. **Decision Node - `roadForNextGrnLight?`:**
+   - The system checks which road should receive the green light next.
+   - If the primary road is selected (`T_st > T2`), it transitions to the "Primary Road Green" state.
+   - If the secondary road is selected (`T_st > T3`), it transitions to the "Secondary Road Green" state.
+
+4. **Primary Road Green:**
+   - In this state, the primary road displays a green light, allowing traffic to flow.
+   - After the green light timer (`T_st > T4`) expires, the system transitions to "Primary Road Yellow."
+   - Upon entering the `Primary Road Green` state, the `roadForNextGrnLight` parameter is set to designate the secondary road as the next to receive a green light.
+
+5. **Primary Road Yellow:**
+   - The primary road's light changes to yellow, warning that the signal will soon turn red.
+   - Once the yellow light timer (`T_st > T6`) expires, the system returns to the "Both Roads Red" state.
+
+6. **Secondary Road Green:**
+   - Here, the secondary road receives a green light, permitting traffic to flow.
+   - After the green light timer (`T_st > T5`) ends, the system moves to "Secondary Road Yellow."
+   - Upon entering the `Secondary Road Green` state, the `roadForNextGrnLight` parameter is set to designate the primary road as the next to receive a green light.
+
+7. **Secondary Road Yellow:**
+   - The secondary road's light switches to yellow, signaling the end of the green light period.
+   - Once the yellow light timer (`T_st > T7`) completes, the system transitions back to the "Both Roads Red" state.
+
+### Flow Summary:
+- The system cycles through these states, alternating between allowing the primary and secondary roads to move.
+- Timers are used to control the duration of each state.
+- After each yellow light, the system ensures both roads are red before allowing the next green light.
+
+This state machine ensures a safe and orderly flow of traffic at the intersection by systematically controlling the timing of the traffic lights for both roads.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
 
 ### Built With
 
