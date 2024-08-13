@@ -20,22 +20,14 @@
 <br />
 <div align="center">
   <a >
-    <img src="images/trafficLight_logo.jpg" alt="Logo" width="500" height="350">
+    <img src="images/trafficLight_logo.jpg" alt="Traffic Light Image" width="500" height="350">
   </a>
 
   <h3 align="center">Traffic Light System</h3>
 
-  <p align="center">
-    An awesome README template to jumpstart your projects!
+  <p align="justify">
+    The Traffic Light System project implements a standard traffic light sequence using the Tiva C Launchpad. This project aims to demonstrate basic embedded system concepts, including timing, state machines, and GPIO control. It serves as an educational tool for understanding how microcontrollers can be used to control hardware components like LEDs in a real-world application. The system cycles through red, yellow, and green lights, mimicking the operation of a real traffic signal.
     <br />
-    <a href="https://github.com/othneildrew/Best-README-Template"><strong>Explore the docs »</strong></a>
-    <br />
-    <br />
-    <a href="https://github.com/othneildrew/Best-README-Template">View Demo</a>
-    ·
-    <a href="https://github.com/othneildrew/Best-README-Template/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
-    ·
-    <a href="https://github.com/othneildrew/Best-README-Template/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
   </p>
 </div>
 
