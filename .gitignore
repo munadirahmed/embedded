@@ -4,3 +4,6 @@ TrafficLight/Tiva_C_Launchpad/trafficLightSystem/.settings/org.eclipse.core.reso
 TrafficLight/Tiva_C_Launchpad/trafficLightSystem/.launches/trafficLightSystem.launch
 TrafficLight/Tiva_C_Launchpad/trafficLightSystem/.settings/org.eclipse.cdt.codan.core.prefs
 TrafficLight/Tiva_C_Launchpad/trafficLightSystem/.settings/org.eclipse.cdt.debug.core.prefs
+/TrafficLight/Basys3/trafficLightProjectFiles/trafficLightSystem.cache
+/TrafficLight/Basys3/trafficLightProjectFiles/trafficLightSystem.runs
+/TrafficLight/Basys3/trafficLightProjectFiles/trafficLightSystem.hw
