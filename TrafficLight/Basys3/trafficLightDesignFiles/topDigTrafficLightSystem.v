@@ -56,7 +56,6 @@ module  trafficLight   (
 	localparam integer NORMAL_MODE_SSM_PRIMARY_ROAD_YELLOW_STATE = 3'h3;	// primary road yellow
    localparam integer NORMAL_MODE_SSM_SECONDARY_ROAD_GREEN_STATE	= 3'h4;	// secondary road green
 	localparam integer NORMAL_MODE_SSM_SECONDARY_ROAD_YELLOW_STATE = 3'h5;	// secondary road yellow
-	localparam integer NORMAL_MODE_SSM_SELECT_ROAD_STATE = 3'h6;	// secondary road yellow
    
    // TODO: SubState-machine in the traffic light system when operating in flashing and error mode
 
@@ -158,7 +157,7 @@ module  trafficLight   (
    always @(negedge reset_n, posedge clk) begin
       if(!reset_n) begin // negedge of reset_n      
          // Reset to the idle state
-         normalModesubStateTime <= NORMAL_MODE_MINIMUM_BOTH_LANE_RED_TIME_SEC;
+         normalModesubStateTime <= NORMAL_MODE_MINIMUM_BOTH_LANE_RED_COUNT;
          trafficLight_NormalModeSubStateMachine <= NORMAL_MODE_SSM_IDLE_STATE;
          roadForNextGrnLight <= ROAD_FOR_NEXT_GREEN_LIGHT_PRIMARY;
          
@@ -174,7 +173,7 @@ module  trafficLight   (
          
          if(normalModeSsmIdle) begin
             trafficLight_NormalModeSubStateMachine <= NORMAL_MODE_SSM_IDLE_STATE;  // if main state machine is not in normal mode keep sus-state machine in idle
-            normalModesubStateTime <= NORMAL_MODE_MINIMUM_BOTH_LANE_RED_TIME_SEC;
+            normalModesubStateTime <= NORMAL_MODE_MINIMUM_BOTH_LANE_RED_COUNT;
          end
          
          // Main state machine implementation
@@ -189,18 +188,12 @@ module  trafficLight   (
                if(!normalModeSsmIdle) begin
                   // Main state machine has transitioned to Normal Operating Mode, transition to 
                   trafficLight_NormalModeSubStateMachine <= NORMAL_MODE_SSM_ALL_LANES_RED_STATE;
-                  normalModesubStateTime <= NORMAL_MODE_MINIMUM_BOTH_LANE_RED_TIME_SEC;
+                  normalModesubStateTime <= NORMAL_MODE_MINIMUM_BOTH_LANE_RED_COUNT;
                   roadForNextGrnLight <= ROAD_FOR_NEXT_GREEN_LIGHT_PRIMARY;
                   
 
                end 
-            end
-            
-            NORMAL_MODE_SSM_SELECT_ROAD_STATE:
-            begin
-               
-            end
-            
+            end          
             
             NORMAL_MODE_SSM_ALL_LANES_RED_STATE:
             begin
@@ -208,27 +201,17 @@ module  trafficLight   (
                
                primaryRoadLight_RYB_normMdSM <= RED_LIGHT;
                secondaryRoadLight_RYB_normMdSM <= RED_LIGHT;
-               
-               /*//Check for transition:
-               if(normalModeSsmTimerDone && (roadForNextGrnLight == ROAD_FOR_NEXT_GREEN_LIGHT_PRIMARY)) begin
-                  // transition from red to green on the primary road once timer is done and if next road to service is primary
-                  trafficLight_NormalModeSubStateMachine <= NORMAL_MODE_SSM_PRIMARY_ROAD_GREEN_STATE;
-                  normalModesubStateTime <= NORMAL_MODE_MINIMUM_GREEN_LIGHT_SIGNAL_COUNT; //reset the timer for green light condition
-               end else if(normalModeSsmTimerDone && (roadForNextGrnLight == ROAD_FOR_NEXT_GREEN_LIGHT_SECONDARY)) begin
-                   // transition from red to green on the primary road once timer is done and if next road to service is secondary
-                  trafficLight_NormalModeSubStateMachine <= NORMAL_MODE_SSM_SECONDARY_ROAD_GREEN_STATE;
-                  normalModesubStateTime <= NORMAL_MODE_MINIMUM_GREEN_LIGHT_SIGNAL_COUNT; //reset the timer for green light condition
-               end*/
+
                if(normalModeSsmTimerDone) begin
                   normalModesubStateTime <= NORMAL_MODE_MINIMUM_GREEN_LIGHT_SIGNAL_COUNT; //reset the timer for green light condition
                   //trafficLight_NormalModeSubStateMachine <= NORMAL_MODE_SSM_SELECT_ROAD_STATE;
                   if (roadForNextGrnLight == ROAD_FOR_NEXT_GREEN_LIGHT_PRIMARY) begin 
                      // transition from red to green on the primary road once timer is done and if next road to service is primary
                      trafficLight_NormalModeSubStateMachine <= NORMAL_MODE_SSM_PRIMARY_ROAD_GREEN_STATE;
-                   end else begin // (roadForNextGrnLight == ROAD_FOR_NEXT_GREEN_LIGHT_SECONDARY)
+                  end else begin // (roadForNextGrnLight == ROAD_FOR_NEXT_GREEN_LIGHT_SECONDARY)
                       // transition from red to green on the secondary road once timer is done and if next road to service is secondary
                      trafficLight_NormalModeSubStateMachine <= NORMAL_MODE_SSM_SECONDARY_ROAD_GREEN_STATE;
-               end
+                  end
                   
                end
             end
@@ -258,7 +241,7 @@ module  trafficLight   (
                if(normalModeSsmTimerDone) begin  
                   // transition from yellow to both lanes red
                   trafficLight_NormalModeSubStateMachine <= NORMAL_MODE_SSM_ALL_LANES_RED_STATE;
-                  normalModesubStateTime <= NORMAL_MODE_MINIMUM_BOTH_LANE_RED_TIME_SEC; //reset the timer for both lates red light condition 
+                  normalModesubStateTime <= NORMAL_MODE_MINIMUM_BOTH_LANE_RED_COUNT; //reset the timer for both lates red light condition 
                end                  
             end
             
@@ -287,7 +270,7 @@ module  trafficLight   (
                if(normalModeSsmTimerDone) begin  
                   // transition from yellow to both lanes red
                   trafficLight_NormalModeSubStateMachine <= NORMAL_MODE_SSM_ALL_LANES_RED_STATE;
-                  normalModesubStateTime <= NORMAL_MODE_MINIMUM_BOTH_LANE_RED_TIME_SEC; //reset the timer for both lates red light condition 
+                  normalModesubStateTime <= NORMAL_MODE_MINIMUM_BOTH_LANE_RED_COUNT; //reset the timer for both lates red light condition 
                end             
             end
             
