@@ -34,14 +34,12 @@ module top_BASYS3(
   .locked(locked),
  // Clock in ports
   .clk_in1(clk_100MHz)
- );
-   
-   
+   );
 	
 	trafficLight MUT(
 	.clk(clk_10MHz),   // 10MHz clock used by CC active charging
    .reset_n(systemReset_n),    // system reset (active-low)
-   .fault(btnU),    // system fault (acitve-high)
+   //.fault(btnU),    // system fault (acitve-high)
    .secondaryRoadSensor(),   // sensor indicating if vehicle is waiting on secondary road
 
    .primaryRoadLight_RYG(led[2:0]),   // output signals for the primary road lights
