@@ -116,6 +116,18 @@ The state machine was implemented on the Tiva C Launchpad using [Code Composer S
 
 The CCS project and all project code can be found in [trafficLightSystem](./Tiva_C_Launchpad/trafficLightSystem/) folder .
 
+### Basys 3 :
+
+<div align="center">
+<a >
+    <img src="images/basys3.png" alt="Basys3 FPGA Development Board" width="350 height="350">
+</a>
+</div>
+
+The state machine was implemented on the Artix-7 FPGA development board using [Vivado](https://www.xilinx.com/products/design-tools/vivado.html) version 2024.1.
+
+The vivado project and all project verilog code can be found in [Basys3](./Basys3) folder .
+
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
