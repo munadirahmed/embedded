@@ -7,3 +7,9 @@ TrafficLight/Tiva_C_Launchpad/trafficLightSystem/.settings/org.eclipse.cdt.debug
 /TrafficLight/Basys3/trafficLightProjectFiles/trafficLightSystem.cache
 /TrafficLight/Basys3/trafficLightProjectFiles/trafficLightSystem.runs
 /TrafficLight/Basys3/trafficLightProjectFiles/trafficLightSystem.hw
+/TrafficLight/Basys3/trafficLightProjectFiles/trafficLightSystem.sim
+TrafficLight/Basys3/trafficLightProjectFiles/vivado.jou
+TrafficLight/Basys3/trafficLightProjectFiles/vivado.log
+TrafficLight/Basys3/trafficLightProjectFiles/vivado_11676.backup.jou
+TrafficLight/Basys3/trafficLightProjectFiles/vivado_11676.backup.log
+TrafficLight/Basys3/trafficLightProjectFiles/vivado_pid24012.str
