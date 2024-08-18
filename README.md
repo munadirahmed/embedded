@@ -29,8 +29,12 @@ Each project folder contains the source code, schematics, and detailed documenta
 
 This repository leverages various tools and environments tailored to the specific needs of each project. Below are some of the key tools used:
 
+### MicroController:
 - **Code Composer Studio (CCS) 12.7.1**: For Tiva C Launchpad projects.
 - **GNU Compiler Collection (GCC)**: For compiling C/C++ code.
+
+### FPGA:
+- **Vivado 2024.1**: For Basys3 Development board project.
 
 ## Getting Started
 
