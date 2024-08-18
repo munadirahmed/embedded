@@ -114,7 +114,7 @@ This state machine ensures a safe and orderly flow of traffic at the intersectio
 
 The state machine was implemented on the Tiva C Launchpad using [Code Composer Studio](https://www.ti.com/tool/CCSTUDIO) (CCS) version 12.7.1 with the GNU compiler (v9.2.1 Linaro). The implementation leverages startup code provided by [Quantum Leaps](https://www.state-machine.com/video-course) and CMSIS v5.0.1, ensuring a robust and efficient control system for the traffic light application.
 
-The CCS project and all project code can be found in [trafficLightSystem](./Tiva_C_Launchpad/trafficLightSystem/) folder .
+The CCS project and all project code can be found in the [trafficLightSystem](./Tiva_C_Launchpad/trafficLightSystem/) folder .
 
 ### Basys 3 :
 
@@ -126,7 +126,7 @@ The CCS project and all project code can be found in [trafficLightSystem](./Tiva
 
 The state machine was implemented on the Artix-7 FPGA development board using [Vivado](https://www.xilinx.com/products/design-tools/vivado.html) version 2024.1.
 
-The vivado project and all project verilog code can be found in [Basys3](./Basys3) folder .
+The vivado project and all project verilog code can be found in the [Basys3](./Basys3) folder .
 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
