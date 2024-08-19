@@ -13,7 +13,7 @@ parameter integer STATE_TIMER_BITS = 29;   // [] - max time is 53.68 sec (10MHz 
 parameter real TRAFFIC_LIGHT_SYSTEM_INIT_TIME_SEC = 5; // [sec] - dwell time in INIT state 
 
 // Define timing for traffic lights system during normal mode and flashing mode (in seconds)
-parameter real NORMAL_MODE_MINIMUM_GREEN_LIGHT_SIGNAL_TIME_SEC = 30; // [sec] - dwell time in green light state for both primary and secondary roads (normal mode)
+parameter real NORMAL_MODE_MINIMUM_GREEN_LIGHT_SIGNAL_TIME_SEC = 6; // [sec] - dwell time in green light state for both primary and secondary roads (normal mode)
 parameter real NORMAL_MODE_MINIMUM_YELLOW_LIGHT_SIGNAL_TIME_SEC = 3; // [sec] - dwell time in yellow light state for both primary and secondary roads (normal mode) 
 parameter real NORMAL_MODE_MINIMUM_BOTH_LANE_RED_TIME_SEC = 3;  // [sec] - dwell time in red light state for both primary and secondary roads  (normal mode)
 
@@ -31,5 +31,14 @@ parameter [STATE_TIMER_BITS-1:0] NORMAL_MODE_MINIMUM_BOTH_LANE_RED_COUNT = (NORM
 parameter [STATE_TIMER_BITS-1:0] FLASHING_MODE_MINIMUM_BOTH_RED_COUNT =  (FLASHING_MODE_MINIMUM_BOTH_RED_TIME_SEC/CLK_PERIOD) - 1; // [] - count corresponding to desired time
 parameter [STATE_TIMER_BITS-1:0] FLASHING_MODE_MINIMUM_BOTH_OFF_COUNT =  (FLASHING_MODE_MINIMUM_BOTH_OFF_TIME_SEC/CLK_PERIOD) - 1; // [] - count corresponding to desired time
 parameter [STATE_TIMER_BITS-1:0] FLASHING_MODE_MINIMUM_PRI_YELLOW_SEC_RED_COUNT =  (FLASHING_MODE_MINIMUM_PRI_YELLOW_SEC_RED_TIME_SEC/CLK_PERIOD) - 1; // [] - count corresponding to desired time
+
+// Local parameters holding the index for red-yellow-green lights in the primaryRoadLight_RYG arrays
+parameter [1:0] RED_LIGHT_IDX = 2'h2;
+parameter [1:0] YELLOW_LIGHT_IDX = 2'h1;
+parameter [1:0] GREEN_LIGHT_IDX = 2'h0;
+
+parameter [2:0] RED_LIGHT = 1<<RED_LIGHT_IDX;
+parameter [2:0] YELLOW_LIGHT = 1<<YELLOW_LIGHT_IDX;
+parameter [2:0] GREEN_LIGHT = 1<<GREEN_LIGHT_IDX;
 
 `endif // _TRAFFIC_LIGHT_SYSTEM_CONSTANTS_H
