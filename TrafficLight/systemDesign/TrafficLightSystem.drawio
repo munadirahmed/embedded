@@ -210,7 +210,7 @@
       </root>
     </mxGraphModel>
   </diagram>
-  <diagram name="TrafficLight_v1.0.0" id="o9gIGF37k6jqkOas-4De">
+  <diagram name="TrafficLight_v1" id="o9gIGF37k6jqkOas-4De">
     <mxGraphModel dx="1434" dy="738" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" background="none" math="0" shadow="0">
       <root>
         <mxCell id="3vCllr6LxMNnYbpR1g6r-0" />
@@ -343,8 +343,8 @@
       </root>
     </mxGraphModel>
   </diagram>
-  <diagram name="TrafficLight_v2.0.0" id="1mA9d5fQ42SzOaeXHoEH">
-    <mxGraphModel dx="1434" dy="738" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" background="none" math="0" shadow="0">
+  <diagram name="TrafficLight_v2" id="1mA9d5fQ42SzOaeXHoEH">
+    <mxGraphModel dx="1434" dy="738" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" background="none" math="0" shadow="0">
       <root>
         <mxCell id="_HrsRCG0uTLNJAFn0sxw-0" />
         <mxCell id="_HrsRCG0uTLNJAFn0sxw-1" parent="_HrsRCG0uTLNJAFn0sxw-0" />
