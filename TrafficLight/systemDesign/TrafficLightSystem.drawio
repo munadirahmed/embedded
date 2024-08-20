@@ -7,7 +7,7 @@
         <mxCell id="BRbZvfWua0Ed-t2ezXg7-1" value="System Description:&amp;nbsp;&lt;div&gt;&lt;ul&gt;&lt;li&gt;State machine for traffic light system for a basic 4-way intersection with traffic lights&lt;/li&gt;&lt;li&gt;One road is designated as the primary road and is expected to have majority of the traffic flow (e.g. highway road like El Camino Real i.e. SR-82 )&lt;/li&gt;&lt;li&gt;Second road is designated as secondary road and is expected to have minor traffic flow (e.g. neighborhood road)&lt;/li&gt;&lt;li&gt;T_st corresponds to the time in existing state&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
           <mxGeometry x="130" y="20" width="850" height="100" as="geometry" />
         </mxCell>
-        <mxCell id="BRbZvfWua0Ed-t2ezXg7-30" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;verticalAlign=bottom;endArrow=open;endSize=8;strokeColor=#ff0000;rounded=0;entryX=0.581;entryY=0.01;entryDx=0;entryDy=0;entryPerimeter=0;exitX=0.514;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;" parent="1" source="jDH-KqwCGmMDvKW5Isui-21" target="BRbZvfWua0Ed-t2ezXg7-38" edge="1">
+        <mxCell id="BRbZvfWua0Ed-t2ezXg7-30" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;verticalAlign=bottom;endArrow=open;endSize=8;strokeColor=#ff0000;rounded=0;entryX=0.599;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;exitX=0.514;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;" parent="1" source="jDH-KqwCGmMDvKW5Isui-21" target="BRbZvfWua0Ed-t2ezXg7-38" edge="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="643" y="470" as="targetPoint" />
             <mxPoint x="710" y="450" as="sourcePoint" />
