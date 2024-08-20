@@ -30,6 +30,14 @@ module  trafficLight   (
    wire normalMdSsmToMainSmConnection_secRdRed;
    wire normalMdSsmToMainSmConnection_secRdYellow;
    wire normalMdSsmToMainSmConnection_secRdGreen;
+   
+   wire flashingMdSsmToMainSmConnection_priRdRed;
+   wire flashingMdSsmToMainSmConnection_priRdYellow;
+   wire flashingMdSsmToMainSmConnection_priRdGreen;
+   
+   wire flashingMdSsmToMainSmConnection_secRdRed;
+   wire flashingMdSsmToMainSmConnection_secRdYellow;
+   wire flashingMdSsmToMainSmConnection_secRdGreen;
 
 	//----------------------------------------------------------------------------
 	// Traffic Light Controller State-Machine Parameters
@@ -77,6 +85,11 @@ module  trafficLight   (
             mainSmStateTime <= mainSmStateTime - 1'b1;
          end
          
+         // Highest presidence - if fault is detected ensure SM operating in flashing mode
+         if(fault) begin
+            trafficLight_mainStateMachine <= MAIN_SM_FLASHING_STATE;
+         end
+         
          // Main state machine implementation
          case (trafficLight_mainStateMachine)
             MAIN_SM_INIT_STATE : 
@@ -85,13 +98,9 @@ module  trafficLight   (
                primaryRoadLight_RYG <= RED_LIGHT;
                secondaryRoadLight_RYG <= RED_LIGHT;
                
-               //initial state move to normal state once timer is done and there is no fault (active high)
-               if(mainSmTimerDone && !fault) begin
+               //initial state move to normal state once timer is done and there is no fault
+               if(mainSmTimerDone) begin
                   trafficLight_mainStateMachine <= MAIN_SM_NORMAL_STATE;
-               end else if (mainSmTimerDone && fault) begin
-                  //TODO: trafficLight_mainStateMachine <= MAIN_SM_FLASHING_STATE;
-               end else begin
-                  // do nothing
                end
             end
             
@@ -113,11 +122,19 @@ module  trafficLight   (
                   // Once fault is removed go back into normal opration via INIT state
                   trafficLight_mainStateMachine <= MAIN_SM_INIT_STATE;
                end
+               // In flashing mode lights driven by flashing mode sub-state machine
+               primaryRoadLight_RYG[RED_LIGHT_IDX] = flashingMdSsmToMainSmConnection_priRdRed;
+               primaryRoadLight_RYG[YELLOW_LIGHT_IDX] = flashingMdSsmToMainSmConnection_priRdYellow;
+               primaryRoadLight_RYG[GREEN_LIGHT_IDX] = flashingMdSsmToMainSmConnection_priRdGreen;
+               
+               secondaryRoadLight_RYG[RED_LIGHT_IDX] = flashingMdSsmToMainSmConnection_secRdRed;
+               secondaryRoadLight_RYG[YELLOW_LIGHT_IDX] = flashingMdSsmToMainSmConnection_secRdYellow;
+               secondaryRoadLight_RYG[GREEN_LIGHT_IDX] = flashingMdSsmToMainSmConnection_secRdGreen;
             end
             
             MAIN_SM_ERROR_STATE:
             begin
-            
+               // TODO: Implementat
             end
             default:  trafficLight_mainStateMachine <= MAIN_SM_INIT_STATE;
          endcase
@@ -151,5 +168,31 @@ module  trafficLight   (
    assign normalMdSsmToMainSmConnection_secRdRed = secondaryRoadLight_RYB_normMdSM[RED_LIGHT_IDX];
    assign normalMdSsmToMainSmConnection_secRdYellow = secondaryRoadLight_RYB_normMdSM[YELLOW_LIGHT_IDX];
    assign normalMdSsmToMainSmConnection_secRdGreen = secondaryRoadLight_RYB_normMdSM[GREEN_LIGHT_IDX];
+   
+   //----------------------------------------------------------------------------
+	// Traffic Light Controller Normal Mode SubState-Machine Implementation
+	//----------------------------------------------------------------------------
+
+   wire flashingModeSsmIdle = (trafficLight_mainStateMachine != MAIN_SM_FLASHING_STATE);  // keep sub-state-machine in idle unless main SM is in flashing mode
+   wire [2:0] primaryRoadLight_RYB_flashingMdSM;  // primary road outputs for the red-yellow-green lights in normal operating mode
+   wire [2:0] secondaryRoadLight_RYB_flashingMdSM;  // secondary road outputs for the red-yellow-green lights in normal operating mode
+      
+   trafficLight_flashingModeSubSm  instanceTrafficLight_flashingModeSubSm (  
+   .clk(clk),   // 10MHz clock used by CC active charging
+   .reset_n(reset_n),    // system reset (active-low)
+   .flashingModeSsmIdle(flashingModeSsmIdle),   // supervisory controller pushing flashing mode substate machine to remain in idle mode
+
+   .primaryRoadLight_RYB_flashingMdSM(primaryRoadLight_RYB_flashingMdSM),   // output signals for the primary road lights
+   .secondaryRoadLight_RYB_flashingMdSM(secondaryRoadLight_RYB_flashingMdSM)   // output signals for the secondary road lights
+	);
+   
+   // Connect the normal mode state machine outputs to the main state machine
+   assign flashingMdSsmToMainSmConnection_priRdRed = primaryRoadLight_RYB_flashingMdSM[RED_LIGHT_IDX];
+   assign flashingMdSsmToMainSmConnection_priRdYellow = primaryRoadLight_RYB_flashingMdSM[YELLOW_LIGHT_IDX];
+   assign flashingMdSsmToMainSmConnection_priRdGreen = primaryRoadLight_RYB_flashingMdSM[GREEN_LIGHT_IDX];
+   
+   assign flashingMdSsmToMainSmConnection_secRdRed = secondaryRoadLight_RYB_flashingMdSM[RED_LIGHT_IDX];
+   assign flashingMdSsmToMainSmConnection_secRdYellow = secondaryRoadLight_RYB_flashingMdSM[YELLOW_LIGHT_IDX];
+   assign flashingMdSsmToMainSmConnection_secRdGreen = secondaryRoadLight_RYB_flashingMdSM[GREEN_LIGHT_IDX];
    
 endmodule
