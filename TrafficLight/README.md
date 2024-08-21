@@ -56,47 +56,58 @@
 
 <div align="center">
 <a >
-    <img src="images/trafficLight_stateMachinev100.png" alt="Traffic Light State Machine">
+    <img src="images/trafficLight_stateMachinev2.png" alt="Traffic Light State Machine">
 </a>
 </div>
 
 This state machine diagram represents the operation of a traffic light control system, managing the signal flow for two intersecting roads, referred to as the "Primary Road" and "Secondary Road." The system transitions through various states to control the timing of traffic signals. Below is an explanation of each state and the transitions:
 
-1. **Initialize:**
+### Initialize:
    - This is the starting state where the system initializes. The transition from this state occurs when the initialization timer (`T_st > T_init`) completes.
    - In the `Initialize` state, the `roadForNextGrnLight` parameter is set to designate the primary road as the next to receive a green light.
 
-2. **Both Roads Red:**
+### Normal Operating Mode
+   1. ***Both Roads Red:***
    - After initialization, the system enters a state where both roads display a red light. This state is a buffer period to ensure both roads stop before allowing any road to go green.
-   - The system remains in this state until a timer (`T_st > T1`) triggers the next transition.
-
-3. **Decision Node - `roadForNextGrnLight?`:**
+   - The system remains in this state until a timer (`T_st > T1`) triggers the next transition. 
+   2. ***Decision Node - `roadForNextGrnLight?`:***
    - The system checks which road should receive the green light next.
    - If the primary road is selected (`T_st > T2`), it transitions to the "Primary Road Green" state.
    - If the secondary road is selected (`T_st > T3`), it transitions to the "Secondary Road Green" state.
 
-4. **Primary Road Green:**
+   3. ***Primary Road Green:***
    - In this state, the primary road displays a green light, allowing traffic to flow.
-   - After the green light timer (`T_st > T4`) expires, the system transitions to "Primary Road Yellow."
-   - Upon entering the `Primary Road Green` state, the `roadForNextGrnLight` parameter is set to designate the secondary road as the next to receive a green light.
+   - After the green light timer (`T_st > T4`) expires, the system transitions to "Primary Road Yellow" only if a sensor on the secondary road indicates that a vehicle is waiting. 
+   - Additionally, upon entering the `Primary Road Green` state, the `roadForNextGrnLight` parameter is set to designate the secondary road as the next to receive a green light.
 
-5. **Primary Road Yellow:**
+   4. ***Primary Road Yellow:***
    - The primary road's light changes to yellow, warning that the signal will soon turn red.
    - Once the yellow light timer (`T_st > T6`) expires, the system returns to the "Both Roads Red" state.
 
-6. **Secondary Road Green:**
+   5. ***Secondary Road Green:***
    - Here, the secondary road receives a green light, permitting traffic to flow.
    - After the green light timer (`T_st > T5`) ends, the system moves to "Secondary Road Yellow."
    - Upon entering the `Secondary Road Green` state, the `roadForNextGrnLight` parameter is set to designate the primary road as the next to receive a green light.
 
-7. **Secondary Road Yellow:**
+   6. ***Secondary Road Yellow:***
    - The secondary road's light switches to yellow, signaling the end of the green light period.
    - Once the yellow light timer (`T_st > T7`) completes, the system transitions back to the "Both Roads Red" state.
 
+### Flashing Operating Mode
+1. ***Both Roads Red:***
+   - When a fault is detected by the system in any state the state machine transitions to operating in flashing mode. After the initial detection of the fault both roads display the red light. After a timer expires the state transitions to 
+2. ***Primary Road Yellow and Secondary Road Red:***
+   - In this state the primary road displays the yellow light and the secondary road displays the red light. In combination with ***Both Roads Off*** state the traffic signal displays a caution to the primary road and acts as a stop sign for the secondary road. Once the timer expires the sub-state machine transitions to the ***Both Roads Off*** state.
+3. ***Both Roads Off:***
+  - In this state the both primary and secondary road lights are switched off. In combination with ***Primary Road Yellow and Secondary Road Red*** state the traffic signal displays a caution to the primary road and acts as a stop sign for the secondary road. Once the timer expires the sub-state machine transitions to the ***Primary Road Yellow and Secondary Road Red*** state.
+
+If the sensor detects that the fault has been removed the supervisory state machine transitions back to the ***Initialize*** state.
+
 ### Flow Summary:
 - The system cycles through these states, alternating between allowing the primary and secondary roads to move.
-- Timers are used to control the duration of each state.
+- Timers control the duration of each state, with priority given to the primary road during normal operation. The primary road remains in the green state after the timer expires, unless a vehicle is detected waiting at the lights on the secondary road.
 - After each yellow light, the system ensures both roads are red before allowing the next green light.
+- Finally, a fault mode is implemented to exert a caution on the primary road and a stop sign on the secondary mode to ensure driver safety during a faulted condition.
 
 This state machine ensures a safe and orderly flow of traffic at the intersection by systematically controlling the timing of the traffic lights for both roads.
 
