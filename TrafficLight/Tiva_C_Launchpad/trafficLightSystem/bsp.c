@@ -20,7 +20,7 @@
 
 // Define constants
 
-#define SYSTICK_ISR_PERIOD_MS TRAFFIC_LIGHT_SM_EXECUTION_TIME_MS //[ms] = systick ISR period WARNING: at 16MHz max ISR period is 1.048576sec
+#define SYSTICK_ISR_PERIOD_MS TRAFFIC_LIGHT_SM_EXECUTION_TIME_MS //[ms] = systick ISR period WARNING: at 20MHz max ISR period is 0.83886sec
 
 
 // Declare static global variables

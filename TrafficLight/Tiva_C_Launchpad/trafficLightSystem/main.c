@@ -35,6 +35,8 @@ int main(void) {
     // Configure the system
     initializeSystem();
 
+    SystemCoreClockUpdate();
+
     // Initialize the application
     initializeApplication();
 

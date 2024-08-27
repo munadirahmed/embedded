@@ -46,7 +46,7 @@
 // The following value is the system clock divisor.  This will be applied if
 // USESYSDIV (see below) is enabled.  The valid range of dividers is 2-16.
 //
-#define CFG_RCC_SYSDIV 4
+#define CFG_RCC_SYSDIV 10
 
 //      <q> USESYSDIV: Enable System Clock Divider
 //          <i> Check this box to use the System Clock Divider
