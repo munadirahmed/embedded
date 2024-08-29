@@ -28,12 +28,14 @@
 void initializeSystem(void);
 
 // Declare function
-
+uint16_t adcValue;
 int main(void) {
 
 
     // Configure the system
     initializeSystem();
+
+    SystemCoreClockUpdate();
 
     // Initialize the application
     initializeApplication();
@@ -42,6 +44,7 @@ int main(void) {
     while (1) {
         //GPIOF_AHB->DATA_Bits[LED_BLUE] = LED_BLUE;
         //GPIOF_AHB->DATA_Bits[LED_BLUE] = 0U;
+        adcValue = getSensorRawInputValue();
     }
     //return 0; // unreachable code
 }
@@ -56,5 +59,6 @@ int main(void) {
 void initializeSystem(void)
 {
     sysTickModuleConfig();  // Configure the System Timer module
-    configureGPIO_TrafficLightPorts();
+    configureGPIO_TrafficLightPorts();  // Configure output ports for LEDS
+    configureADC_TrafficLightSecondaryRoadVehicleSensor();   // Configure input port for secondary road sensor
 }
