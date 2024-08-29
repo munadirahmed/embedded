@@ -5,6 +5,8 @@
  * Date: YYYY-MM-DD
  */
 
+#include <stdint.h>
+
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
@@ -22,7 +24,7 @@ typedef unsigned char boolean;
 
 #define CONVERT_T_IN_MS_TO_SM_EXECUTION_TICKS(t_in_MS)  ( (t_in_MS) / (TRAFFIC_LIGHT_SM_EXECUTION_TIME_MS) )
 
-/***************  Application Specific Information ********************/
+/***************  Application Specific Timinng Information ********************/
 #define TRAFFIC_LIGHT_SYSTEM_INIT_TIME_SEC  5U
 #define TRAFFIC_LIGHT_SYSTEM_INIT_TIME_MS  CONVERT_SEC_TO_MS(TRAFFIC_LIGHT_SYSTEM_INIT_TIME_SEC)
 #define TRAFFIC_LIGHT_SYSTEM_INIT_COUNT  CONVERT_T_IN_MS_TO_SM_EXECUTION_TICKS(TRAFFIC_LIGHT_SYSTEM_INIT_TIME_MS)
@@ -54,6 +56,22 @@ typedef unsigned char boolean;
 #define FLASHING_MODE_MINIMUM_BOTH_OFF_COUNT   CONVERT_T_IN_MS_TO_SM_EXECUTION_TICKS(FLASHING_MODE_MINIMUM_BOTH_OFF_TIME_MS)
 #define FLASHING_MODE_MINIMUM_PRI_YELLOW_SEC_RED_COUNT   CONVERT_T_IN_MS_TO_SM_EXECUTION_TICKS(FLASHING_MODE_MINIMUM_PRI_YELLOW_SEC_RED_TIME_MS)
 
+/***************  Input Sensor Data ********************/
 
+// ADC Parameters
+#define ADC_MAX_DIGITAL_VALUE ( (1U<<12) - 1)
+#define ADC_MIN_DIGITAL_VALUE ( 0U)
+#define ADC_REFERENCE_VOLTAGE 3.3f
+
+// SW hysteresis for input adc sensor
+#define SENSOR_VEHICLE_PRESENT_VOLTAGE_TH 2.8F
+#define SENSOR_NO_VEHICLE_PRESENT_VOLTAGE_TH 2.3F
+
+// Derive digital values corresponding to sensor thresholds and round to nearest integer value
+#define CONVERT_ADC_IN_VOLTAGE_TO_DIGITAL_VALUE(adc_V_in) ( (uint16_t)( 0.5f + ( ( (adc_V_in)/ (ADC_REFERENCE_VOLTAGE) ) * (ADC_MAX_DIGITAL_VALUE)  ) ) )
+
+
+#define SENSOR_VEHICLE_PRESENT_DIGITAL_TH CONVERT_ADC_IN_VOLTAGE_TO_DIGITAL_VALUE(SENSOR_VEHICLE_PRESENT_VOLTAGE_TH)
+#define SENSOR_NO_VEHICLE_PRESENT_DIGITAL_TH CONVERT_ADC_IN_VOLTAGE_TO_DIGITAL_VALUE(SENSOR_NO_VEHICLE_PRESENT_VOLTAGE_TH)
 
 #endif /* CONFIG_H_ */

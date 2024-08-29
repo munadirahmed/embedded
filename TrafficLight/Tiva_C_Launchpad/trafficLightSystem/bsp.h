@@ -25,6 +25,9 @@ typedef enum {
 
 void sysTickModuleConfig(void);
 void configureGPIO_TrafficLightPorts(void);
+void configureADC_TrafficLightSecondaryRoadVehicleSensor(void);
 void set_digital_out(om_dig_ch_t ch,trafficLight_Color_t lightColor);
+
+uint16_t getSensorRawInputValue(void);
 
 #endif // __BSP_H__

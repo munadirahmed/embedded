@@ -45,6 +45,11 @@ typedef enum {
     SECONDARY_ROAD
 }trafficLight_RoadForNextGreenLight;
 
+typedef enum {
+    NO_VEHICLE_PRESENT=0U,
+    VEHICLE_PRESENT
+}trafficLight_VehicleStatusOnSecRoad_t;
+
 typedef struct {
     trafficLight_MainStates_t currentMainState;   // holds the current main state for the traffic light
     trafficLight_NormalModeSubStates_t currentNrmlModeSubState;  // holds the current substate when traffic light operating in normal operating mode
@@ -53,6 +58,7 @@ typedef struct {
     trafficLight_RoadForNextGreenLight roadForNextGrnLight;
     trafficLight_Color_t primaryRoadTrafficLight;
     trafficLight_Color_t secondaryRoadTrafficLight;
+    trafficLight_VehicleStatusOnSecRoad_t vehicleStatusOnSecRoad;
 } trafficLightClass_t;
 
 
@@ -125,6 +131,9 @@ static inline void runSubStateTrafficLightFlashingSubSm_SecRoadGrn(trafficLightC
 static inline void runSubStateTrafficLightFlashingSubSm_SecRoadYllw(trafficLightClass_t *tl_sm_obj_ptr);
 */
 
+// Vehicle sensor helper functions
+static inline void updateSecondaryRoadVehicleStatus(trafficLightClass_t *tl_sm_obj_ptr);
+
 /***************  Declare function (local and global)  ********************/
 
 // Functions that interact with external modules
@@ -142,12 +151,23 @@ void initializeApplication(void)
     trafficLightObject.currentNrmlModeSubState = NORMAL_MODE_IDLE;
     trafficLightObject.currentFlshingModeSubState = FLASHING_MODE_IDLE;
     trafficLightObject.roadForNextGrnLight = PRIMARY_ROAD;
+    trafficLightObject.vehicleStatusOnSecRoad = NO_VEHICLE_PRESENT;
     onStateEnterTrafficLightMainSm_Init(&trafficLightObject);
 }
 
+/**
+ * Main application run program
+ *
+ * @param - N/A
+ *
+ * @return - N/A
+ */
+
 void runApplication(void)
 {
+    updateSecondaryRoadVehicleStatus(&trafficLightObject);
     runTrafficLightStateMachine(&trafficLightObject);
+
 }
 
 
@@ -176,6 +196,35 @@ static inline boolean checkStateTransitionOutCondition_Init(trafficLightClass_t 
     }
 
     return rtn;
+
+}
+
+/**
+ * Check sensor to see if vehicle is waiting on secondary road or not and updates the object status
+ *
+ * @param *tl_sm_obj_ptr -> pointer to a traffic light state machine object.
+ *
+ * @return - N/A
+ */
+static inline void updateSecondaryRoadVehicleStatus(trafficLightClass_t *tl_sm_obj_ptr)
+{
+    uint16_t vehicleSensorData = getSensorRawInputValue();
+
+    //SW Hysteresis implementation
+    if( (SENSOR_VEHICLE_PRESENT_DIGITAL_TH) < vehicleSensorData )
+    {
+        // Comparator above hysteretic threshold
+        tl_sm_obj_ptr->vehicleStatusOnSecRoad = VEHICLE_PRESENT;
+    }else if( (SENSOR_NO_VEHICLE_PRESENT_DIGITAL_TH) > vehicleSensorData)
+    {
+        // Comparator below hysteretic threshold
+        tl_sm_obj_ptr->vehicleStatusOnSecRoad = NO_VEHICLE_PRESENT;
+    }else
+    {
+        //do nothing
+    }
+
+    return;
 
 }
 
@@ -471,7 +520,7 @@ static inline boolean checkSubStateTransitionOutCondition_AllLanesRed(trafficLig
 static inline boolean checkSubStateTransitionOutCondition_PriRoadGrn(trafficLightClass_t *tl_sm_obj_ptr)
 {
     boolean rtn = false;
-    if( (0U == tl_sm_obj_ptr->timer)  )
+    if( (0U == tl_sm_obj_ptr->timer) && (VEHICLE_PRESENT == tl_sm_obj_ptr->vehicleStatusOnSecRoad) )
     {
         // Ready to transition - Set primary road to yellow and initialize all parameters for state entry
         tl_sm_obj_ptr->currentNrmlModeSubState = NORMAL_MODE_PRIMARY_ROAD_YELLOW;
