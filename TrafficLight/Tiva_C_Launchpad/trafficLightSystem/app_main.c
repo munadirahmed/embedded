@@ -50,6 +50,11 @@ typedef enum {
     VEHICLE_PRESENT
 }trafficLight_VehicleStatusOnSecRoad_t;
 
+typedef enum {
+    NO_FAULT_DETECTED=0U,
+    FAULT_DETECTED
+}trafficLight_SystemFaultStatus_t;
+
 typedef struct {
     trafficLight_MainStates_t currentMainState;   // holds the current main state for the traffic light
     trafficLight_NormalModeSubStates_t currentNrmlModeSubState;  // holds the current substate when traffic light operating in normal operating mode
@@ -59,6 +64,7 @@ typedef struct {
     trafficLight_Color_t primaryRoadTrafficLight;
     trafficLight_Color_t secondaryRoadTrafficLight;
     trafficLight_VehicleStatusOnSecRoad_t vehicleStatusOnSecRoad;
+    trafficLight_SystemFaultStatus_t systemFaultStatus;
 } trafficLightClass_t;
 
 
@@ -75,7 +81,7 @@ static trafficLightClass_t trafficLightObject;
 // All main state machine entry actions for each state
 static void onStateEnterTrafficLightMainSm_Init(trafficLightClass_t *tl_sm_obj_ptr);   // Not inlined as could be called from multiple transitions
 static void onStateEnterTrafficLightMainSm_Normal(trafficLightClass_t *tl_sm_obj_ptr);   // Not inlined as could be called from multiple transitions
-//static void onStateEnterTrafficLightMainSm_Flashing(trafficLightClass_t *tl_sm_obj_ptr);   // Not inlined as could be called from multiple transitions
+static void onStateEnterTrafficLightMainSm_Flashing(trafficLightClass_t *tl_sm_obj_ptr);   // Not inlined as could be called from multiple transitions
 //static void onStateEnterTrafficLightMainSm_Error(trafficLightClass_t *tl_sm_obj_ptr);   // Not inlined as could be called from multiple transitions
 
 static inline boolean checkStateTransitionOutCondition_Init(trafficLightClass_t *tl_sm_obj_ptr);
@@ -114,25 +120,23 @@ static inline void runSubStateTrafficLightNormalSubSm_SecRoadYllw(trafficLightCl
 
 // All Flashing sub-state machine helper functions
 
-/*
-//TODO: define all of the Flashing sub-state machine helper functions
 static void onStateEnterTrafficLightFlashingSubSm_AllLanesRed(trafficLightClass_t *tl_sm_obj_ptr);
-static void onStateEnterTrafficLightFlashingSubSm_PriRoadGrn(trafficLightClass_t *tl_sm_obj_ptr);
-static void onStateEnterTrafficLightFlashingSubSm_PriRoadYllw(trafficLightClass_t *tl_sm_obj_ptr);
-static void onStateEnterTrafficLightFlashingSubSm_SecRoadGrn(trafficLightClass_t *tl_sm_obj_ptr);
-static void onStateEnterTrafficLightFlashingSubSm_SecRoadYllw(trafficLightClass_t *tl_sm_obj_ptr);
+static void onStateEnterTrafficLightFlashingSubSm_PriRoadYllwSecRoadRed(trafficLightClass_t *tl_sm_obj_ptr);
+static void onStateEnterTrafficLightFlashingSubSm_AllLanesOff(trafficLightClass_t *tl_sm_obj_ptr);
 
 static inline void runTrafficLightFlashingModeSubStateMachine(trafficLightClass_t *tl_sm_obj_ptr);
 
+static inline boolean checkFlashingSubStateTransitionOutCondition_AllLanesRed(trafficLightClass_t *tl_sm_obj_ptr);
+static inline boolean checkFlashingSubStateTransitionOutCondition_PriRoadYllwSecRoadRed(trafficLightClass_t *tl_sm_obj_ptr);
+static inline boolean checkFlashingSubStateTransitionOutCondition_AllLanesOff(trafficLightClass_t *tl_sm_obj_ptr);
+
 static inline void runSubStateTrafficLightFlashingSubSm_AllLanesRed(trafficLightClass_t *tl_sm_obj_ptr);
-static inline void runSubStateTrafficLightFlashingSubSm_PriRoadGrn(trafficLightClass_t *tl_sm_obj_ptr);
-static inline void runSubStateTrafficLightFlashingSubSm_PriRoadYllw(trafficLightClass_t *tl_sm_obj_ptr);
-static inline void runSubStateTrafficLightFlashingSubSm_SecRoadGrn(trafficLightClass_t *tl_sm_obj_ptr);
-static inline void runSubStateTrafficLightFlashingSubSm_SecRoadYllw(trafficLightClass_t *tl_sm_obj_ptr);
-*/
+static inline void runSubStateTrafficLightFlashingSubSm_PriRoadYllwSecRoadRed(trafficLightClass_t *tl_sm_obj_ptr);
+static inline void runSubStateTrafficLightFlashingSubSm_AllLanesOff(trafficLightClass_t *tl_sm_obj_ptr);
 
 // Vehicle sensor helper functions
 static inline void updateSecondaryRoadVehicleStatus(trafficLightClass_t *tl_sm_obj_ptr);
+static inline void updateSystemFaultDetectionStatus(trafficLightClass_t *tl_sm_obj_ptr);
 
 /***************  Declare function (local and global)  ********************/
 
@@ -166,6 +170,7 @@ void initializeApplication(void)
 void runApplication(void)
 {
     updateSecondaryRoadVehicleStatus(&trafficLightObject);
+    updateSystemFaultDetectionStatus(&trafficLightObject);
     runTrafficLightStateMachine(&trafficLightObject);
 
 }
@@ -183,11 +188,21 @@ void runApplication(void)
 static inline boolean checkStateTransitionOutCondition_Init(trafficLightClass_t *tl_sm_obj_ptr)
 {
     boolean rtn = false;
-    if( (0U == tl_sm_obj_ptr->timer) )
+    if(FAULT_DETECTED == tl_sm_obj_ptr->systemFaultStatus)
+    {
+        // Fault detected - immediately go to flashing mode operation
+        tl_sm_obj_ptr->currentMainState= FLASHING;
+        tl_sm_obj_ptr->currentNrmlModeSubState = NORMAL_MODE_IDLE;
+        tl_sm_obj_ptr->currentFlshingModeSubState = FLASHING_MODE_ALL_LANES_RED;
+        onStateEnterTrafficLightMainSm_Flashing(tl_sm_obj_ptr);
+        rtn = true;
+    }
+    else if( (0U == tl_sm_obj_ptr->timer) )
     {
         // Ready to transition - Initialize all parameters
         tl_sm_obj_ptr->currentMainState= NORMAL;
         tl_sm_obj_ptr->currentNrmlModeSubState = NORMAL_MODE_ALL_LANES_RED;
+        tl_sm_obj_ptr->currentFlshingModeSubState = FLASHING_MODE_IDLE;
         onStateEnterTrafficLightMainSm_Normal(tl_sm_obj_ptr);
         rtn = true;
     }else
@@ -200,35 +215,6 @@ static inline boolean checkStateTransitionOutCondition_Init(trafficLightClass_t 
 }
 
 /**
- * Check sensor to see if vehicle is waiting on secondary road or not and updates the object status
- *
- * @param *tl_sm_obj_ptr -> pointer to a traffic light state machine object.
- *
- * @return - N/A
- */
-static inline void updateSecondaryRoadVehicleStatus(trafficLightClass_t *tl_sm_obj_ptr)
-{
-    uint16_t vehicleSensorData = getSensorRawInputValue();
-
-    //SW Hysteresis implementation
-    if( (SENSOR_VEHICLE_PRESENT_DIGITAL_TH) < vehicleSensorData )
-    {
-        // Comparator above hysteretic threshold
-        tl_sm_obj_ptr->vehicleStatusOnSecRoad = VEHICLE_PRESENT;
-    }else if( (SENSOR_NO_VEHICLE_PRESENT_DIGITAL_TH) > vehicleSensorData)
-    {
-        // Comparator below hysteretic threshold
-        tl_sm_obj_ptr->vehicleStatusOnSecRoad = NO_VEHICLE_PRESENT;
-    }else
-    {
-        //do nothing
-    }
-
-    return;
-
-}
-
-/**
  * Check for transition out condition of main state machine: NORMAL state
  *
  * @param *tl_sm_obj_ptr -> pointer to a traffic light state machine object
@@ -237,8 +223,17 @@ static inline void updateSecondaryRoadVehicleStatus(trafficLightClass_t *tl_sm_o
  */
 static inline boolean checkStateTransitionOutCondition_Normal(trafficLightClass_t *tl_sm_obj_ptr)
 {
-//TODO: implement transitions
-    return false;
+    boolean rtn = false;
+    if(FAULT_DETECTED == tl_sm_obj_ptr->systemFaultStatus)
+    {
+        // Fault detected - immediately go to flashing mode operation
+        tl_sm_obj_ptr->currentMainState= FLASHING;
+        tl_sm_obj_ptr->currentNrmlModeSubState = NORMAL_MODE_IDLE;
+        tl_sm_obj_ptr->currentFlshingModeSubState = FLASHING_MODE_ALL_LANES_RED;
+        onStateEnterTrafficLightMainSm_Flashing(tl_sm_obj_ptr);
+        rtn = true;
+    }
+    return rtn;
 }
 
 /**
@@ -250,8 +245,17 @@ static inline boolean checkStateTransitionOutCondition_Normal(trafficLightClass_
  */
 static inline boolean checkStateTransitionOutCondition_Flashing(trafficLightClass_t *tl_sm_obj_ptr)
 {
-    //TODO: implement transitions
-    return false;
+    boolean rtn = false;
+    if(NO_FAULT_DETECTED == tl_sm_obj_ptr->systemFaultStatus)
+    {
+        // Fault detected - immediately go to flashing mode operation
+        tl_sm_obj_ptr->currentMainState= INIT;
+        tl_sm_obj_ptr->currentNrmlModeSubState = NORMAL_MODE_IDLE;
+        tl_sm_obj_ptr->currentFlshingModeSubState = FLASHING_MODE_IDLE;
+        onStateEnterTrafficLightMainSm_Init(tl_sm_obj_ptr);
+        rtn = true;
+    }
+    return rtn;
 }
 
 /**
@@ -288,8 +292,8 @@ static inline void runStateTrafficLightSm_Init(trafficLightClass_t *tl_sm_obj_pt
  */
 static inline void runStateTrafficLightSm_Normal(trafficLightClass_t *tl_sm_obj_ptr)
 {
-    checkStateTransitionOutCondition_Normal(tl_sm_obj_ptr);
     runTrafficLightNormalModeSubStateMachine(tl_sm_obj_ptr);
+    checkStateTransitionOutCondition_Normal(tl_sm_obj_ptr);
 
 }
 
@@ -302,8 +306,8 @@ static inline void runStateTrafficLightSm_Normal(trafficLightClass_t *tl_sm_obj_
  */
 static inline void runStateTrafficLightSm_Flashing(trafficLightClass_t *tl_sm_obj_ptr)
 {
+    runTrafficLightFlashingModeSubStateMachine(tl_sm_obj_ptr);
     checkStateTransitionOutCondition_Flashing(tl_sm_obj_ptr);
-    //TODOL implement runTrafficLightFlashingModeSubStateMachine(tl_sm_obj_ptr);
 }
 
 /**
@@ -347,7 +351,7 @@ static void onStateEnterTrafficLightMainSm_Normal(trafficLightClass_t *tl_sm_obj
  *
  * @return - N/A
  */
-/*static void onStateEnterTrafficLightMainSm_Flashing(trafficLightClass_t *tl_sm_obj_ptr)
+static void onStateEnterTrafficLightMainSm_Flashing(trafficLightClass_t *tl_sm_obj_ptr)
 {
    // TODO: finalize implementation
     tl_sm_obj_ptr->currentNrmlModeSubState = NORMAL_MODE_IDLE;  // reset flashing mode sub-state machine
@@ -355,10 +359,10 @@ static void onStateEnterTrafficLightMainSm_Normal(trafficLightClass_t *tl_sm_obj
     trafficLightObject.secondaryRoadTrafficLight = TRAFFIC_LIGHT_COLOR_RED;
     trafficLightObject.currentFlshingModeSubState = FLASHING_MODE_ALL_LANES_RED;
 
-    //onStateEnterTrafficLightFlashingSubSm_AllLanesRed(tl_sm_obj_ptr);  // Initialize parameters for all lanes red
+    onStateEnterTrafficLightFlashingSubSm_AllLanesRed(tl_sm_obj_ptr);  // Initialize parameters for all lanes red
     set_digital_out(OM_DIG_CH_PRIMARY_ROAD, trafficLightObject.primaryRoadTrafficLight);
     set_digital_out(OM_DIG_CH_SECONDARY_ROAD, trafficLightObject.secondaryRoadTrafficLight);
-}*/
+}
 
 
 /**
@@ -740,6 +744,236 @@ static inline void runTrafficLightNormalModeSubStateMachine(trafficLightClass_t 
         tl_sm_obj_ptr->currentMainState = ERROR;
         break;
     }
+}
+
+
+/**
+ * Tasks to perform upon entry of flashing mode sub-state machine: All Lanes Red
+ *
+ * @param *tl_sm_obj_ptr -> pointer to a traffic light state machine object
+ *
+ * @return - N/A
+ */
+static void onStateEnterTrafficLightFlashingSubSm_AllLanesRed(trafficLightClass_t *tl_sm_obj_ptr)
+{
+    tl_sm_obj_ptr->timer = FLASHING_MODE_MINIMUM_BOTH_RED_COUNT;  // Update timer to spend minimum time in sub-state
+    trafficLightObject.primaryRoadTrafficLight = TRAFFIC_LIGHT_COLOR_RED;
+    trafficLightObject.secondaryRoadTrafficLight = TRAFFIC_LIGHT_COLOR_RED;
+    set_digital_out(OM_DIG_CH_PRIMARY_ROAD, trafficLightObject.primaryRoadTrafficLight);
+    set_digital_out(OM_DIG_CH_SECONDARY_ROAD, trafficLightObject.secondaryRoadTrafficLight);
+}
+
+/**
+ * Tasks to perform upon entry of flashing mode sub-state machine: Primary Road Yellow + Secondary Road Red
+ *
+ * @param *tl_sm_obj_ptr -> pointer to a traffic light state machine object
+ *
+ * @return - N/A
+ */
+static void onStateEnterTrafficLightFlashingSubSm_PriRoadYllwSecRoadRed(trafficLightClass_t *tl_sm_obj_ptr)
+{
+    tl_sm_obj_ptr->timer = FLASHING_MODE_MINIMUM_PRI_YELLOW_SEC_RED_COUNT;  // Update timer to spend minimum time in sub-state
+    trafficLightObject.primaryRoadTrafficLight = TRAFFIC_LIGHT_COLOR_YELLOW;
+    trafficLightObject.secondaryRoadTrafficLight = TRAFFIC_LIGHT_COLOR_RED;
+    set_digital_out(OM_DIG_CH_PRIMARY_ROAD, trafficLightObject.primaryRoadTrafficLight);
+    set_digital_out(OM_DIG_CH_SECONDARY_ROAD, trafficLightObject.secondaryRoadTrafficLight);
+}
+
+/**
+ * Tasks to perform upon entry of flashing mode sub-state machine: All Lanes Off
+ *
+ * @param *tl_sm_obj_ptr -> pointer to a traffic light state machine object
+ *
+ * @return - N/A
+ */
+static void onStateEnterTrafficLightFlashingSubSm_AllLanesOff(trafficLightClass_t *tl_sm_obj_ptr)
+{
+    tl_sm_obj_ptr->timer = FLASHING_MODE_MINIMUM_BOTH_OFF_COUNT;  // Update timer to spend minimum time in sub-state
+    trafficLightObject.primaryRoadTrafficLight = TRAFFIC_LIGHT_OFF;
+    trafficLightObject.secondaryRoadTrafficLight = TRAFFIC_LIGHT_OFF;
+    set_digital_out(OM_DIG_CH_PRIMARY_ROAD, trafficLightObject.primaryRoadTrafficLight);
+    set_digital_out(OM_DIG_CH_SECONDARY_ROAD, trafficLightObject.secondaryRoadTrafficLight);
+}
+
+/**
+ * Tasks to perform while in flashing mode sub-state machine: All Lanes Red
+ *
+ * @param *tl_sm_obj_ptr -> pointer to a traffic light state machine object
+ *
+ * @return - N/A
+ */
+static inline void runSubStateTrafficLightFlashingSubSm_AllLanesRed(trafficLightClass_t *tl_sm_obj_ptr)
+{
+    checkFlashingSubStateTransitionOutCondition_AllLanesRed(tl_sm_obj_ptr);
+}
+
+/**
+ * Tasks to perform while in flashing mode sub-state machine: Primary Road Yellow + Secondary Road Red
+ *
+ * @param *tl_sm_obj_ptr -> pointer to a traffic light state machine object
+ *
+ * @return - N/A
+ */
+static inline void runSubStateTrafficLightFlashingSubSm_PriRoadYllwSecRoadRed(trafficLightClass_t *tl_sm_obj_ptr)
+{
+    checkFlashingSubStateTransitionOutCondition_PriRoadYllwSecRoadRed(tl_sm_obj_ptr);
+}
+
+/**
+ * Tasks to perform while in flashing mode sub-state machine: all lanes off
+ *
+ * @param *tl_sm_obj_ptr -> pointer to a traffic light state machine object
+ *
+ * @return - N/A
+ */
+static inline void runSubStateTrafficLightFlashingSubSm_AllLanesOff(trafficLightClass_t *tl_sm_obj_ptr)
+{
+    checkFlashingSubStateTransitionOutCondition_AllLanesOff(tl_sm_obj_ptr);
+}
+
+/**
+ * Check for transition out condition of flashing mode sub-state machine: All Lanes Red
+ *
+ * @param *tl_sm_obj_ptr -> pointer to a traffic light state machine object
+ *
+ * @return - N/A
+ */
+static inline boolean checkFlashingSubStateTransitionOutCondition_AllLanesRed(trafficLightClass_t *tl_sm_obj_ptr)
+{
+    boolean rtn = false;
+    if( (0U == tl_sm_obj_ptr->timer)  )
+    {
+        tl_sm_obj_ptr->currentFlshingModeSubState = FLASHING_MODE_PRIMARY_ROAD_YELLOW_SEC_ROAD_RED;
+        onStateEnterTrafficLightFlashingSubSm_PriRoadYllwSecRoadRed(tl_sm_obj_ptr);
+        rtn = true;
+    }else
+    {
+        //do nothing
+    }
+
+    return rtn;
+}
+
+/**
+ * Check for transition out condition of flashing mode sub-state machine: AllLanesOff
+ *
+ * @param *tl_sm_obj_ptr -> pointer to a traffic light state machine object
+ *
+ * @return - N/A
+ */
+static inline boolean checkFlashingSubStateTransitionOutCondition_AllLanesOff(trafficLightClass_t *tl_sm_obj_ptr)
+{
+    boolean rtn = false;
+    if( (0U == tl_sm_obj_ptr->timer)  )
+    {
+        tl_sm_obj_ptr->currentFlshingModeSubState = FLASHING_MODE_PRIMARY_ROAD_YELLOW_SEC_ROAD_RED;
+        onStateEnterTrafficLightFlashingSubSm_PriRoadYllwSecRoadRed(tl_sm_obj_ptr);
+        rtn = true;
+    }else
+    {
+        //do nothing
+    }
+
+    return rtn;
+}
+
+/**
+ * Check for transition out condition of flashing mode sub-state machine: Primary Road Yellow + Secondary Road Red
+ *
+ * @param *tl_sm_obj_ptr -> pointer to a traffic light state machine object
+ *
+ * @return - N/A
+ */
+static inline boolean checkFlashingSubStateTransitionOutCondition_PriRoadYllwSecRoadRed(trafficLightClass_t *tl_sm_obj_ptr)
+{
+    boolean rtn = false;
+    if( (0U == tl_sm_obj_ptr->timer)  )
+    {
+        tl_sm_obj_ptr->currentFlshingModeSubState = FLASHING_MODE_ALL_LANES_OFF;
+        onStateEnterTrafficLightFlashingSubSm_AllLanesOff(tl_sm_obj_ptr);
+        rtn = true;
+    }else
+    {
+        //do nothing
+    }
+
+    return rtn;
+}
+
+/**
+ * Execution of the traffic light sub-state machine when in flashing operating mode
+ *
+ * @param *tl_sm_obj_ptr -> pointer to a traffic light state machine object
+ *
+ * @return - N/A
+ */
+static inline void runTrafficLightFlashingModeSubStateMachine(trafficLightClass_t *tl_sm_obj_ptr) {
+    switch (tl_sm_obj_ptr->currentFlshingModeSubState)
+    {
+    case FLASHING_MODE_IDLE:
+        //Do nothing To lights
+        break;
+    case FLASHING_MODE_ALL_LANES_RED:
+        runSubStateTrafficLightFlashingSubSm_AllLanesRed(tl_sm_obj_ptr);
+        break;
+    case FLASHING_MODE_PRIMARY_ROAD_YELLOW_SEC_ROAD_RED:
+        runSubStateTrafficLightFlashingSubSm_PriRoadYllwSecRoadRed(tl_sm_obj_ptr);
+        break;
+    case FLASHING_MODE_ALL_LANES_OFF:
+        runSubStateTrafficLightFlashingSubSm_AllLanesOff(tl_sm_obj_ptr);
+        break;
+    default:
+        //Should never get here
+        tl_sm_obj_ptr->currentMainState = ERROR;
+        break;
+    }
+}
+
+/**
+ * Check sensor to see if vehicle is waiting on secondary road or not and updates the object status
+ *
+ * @param *tl_sm_obj_ptr -> pointer to a traffic light state machine object.
+ *
+ * @return - N/A
+ */
+static inline void updateSecondaryRoadVehicleStatus(trafficLightClass_t *tl_sm_obj_ptr)
+{
+    uint16_t vehicleSensorData = getSensorRawInputValue();
+
+    //SW Hysteresis implementation
+    if( (SENSOR_VEHICLE_PRESENT_DIGITAL_TH) < vehicleSensorData )
+    {
+        // Comparator above hysteretic threshold
+        tl_sm_obj_ptr->vehicleStatusOnSecRoad = VEHICLE_PRESENT;
+    }else if( (SENSOR_NO_VEHICLE_PRESENT_DIGITAL_TH) > vehicleSensorData)
+    {
+        // Comparator below hysteretic threshold
+        tl_sm_obj_ptr->vehicleStatusOnSecRoad = NO_VEHICLE_PRESENT;
+    }else
+    {
+        //do nothing
+    }
+
+    return;
+
+}
+
+trafficLight_SystemFaultStatus_t testFaultStatus = NO_FAULT_DETECTED;
+
+/**
+ * Check system sensors to determine if system has faulted (initial implementation uses only ADC channel data - can be expanded for multiple fault sensors)
+ *
+ * @param *tl_sm_obj_ptr -> pointer to a traffic light state machine object.
+ *
+ * @return - N/A
+ */
+static inline void updateSystemFaultDetectionStatus(trafficLightClass_t *tl_sm_obj_ptr)
+{
+    // TODO: implement fault sensor detection
+    tl_sm_obj_ptr->systemFaultStatus =testFaultStatus;
+
+    return;
+
 }
 
 // EOF

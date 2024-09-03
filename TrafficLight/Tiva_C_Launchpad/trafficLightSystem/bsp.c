@@ -173,10 +173,14 @@ void set_digital_out(om_dig_ch_t ch,trafficLight_Color_t lightColor)
     }else if(TRAFFIC_LIGHT_COLOR_YELLOW == lightColor)
     {
         lightOutput = LED_YELLOW;
-    }else
+    }else if(TRAFFIC_LIGHT_COLOR_RED == lightColor)
     {
         lightOutput = LED_RED;
+    }else // (TRAFFIC_LIGHT_OFF)
+    {
+        lightOutput = 0U;  // turn all lights off
     }
+
     /* Set the output for the corresponding digital output channel */
     ptr->DATA_Bits[LED_RED | LED_YELLOW | LED_GREEN] = lightOutput;
 }
