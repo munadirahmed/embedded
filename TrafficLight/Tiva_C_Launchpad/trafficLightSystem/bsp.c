@@ -77,21 +77,21 @@ void configureGPIO_TrafficLightPorts(void)
     SYSCTL->GPIOHBCTL |= (1U << 5); /* enable AHB for GPIOF */
     SYSCTL->RCGCGPIO  |= (1U << 5); /* enable Run mode for GPIOF */
 
-    GPIOF_AHB->DIR |= (LED_RED | LED_YELLOW | LED_GREEN);  // configure as outputs
-    GPIOF_AHB->DEN |= (LED_RED | LED_YELLOW | LED_GREEN);  // enable gpio functionality
+    GPIOF_AHB->DIR |= (PRI_ROAD_LED_RED | PRI_ROAD_LED_YELLOW | PRI_ROAD_LED_GREEN);  // configure as outputs
+    GPIOF_AHB->DEN |= (PRI_ROAD_LED_RED | PRI_ROAD_LED_YELLOW | PRI_ROAD_LED_GREEN);  // enable gpio functionality
 
     /* turn all LEDs off */
-    GPIOF_AHB->DATA_Bits[LED_RED | LED_YELLOW | LED_GREEN] = 0U;
+    GPIOF_AHB->DATA_Bits[PRI_ROAD_LED_RED | PRI_ROAD_LED_YELLOW | PRI_ROAD_LED_GREEN] = 0U;
 
     // Configure Port D (Secondary Road LED)
     SYSCTL->GPIOHBCTL |= (1U << 3); /* enable AHB for GPIOD */
     SYSCTL->RCGCGPIO  |= (1U << 3); /* enable Run mode for GPIOD */
 
-    GPIOD_AHB->DIR |= (LED_RED | LED_YELLOW | LED_GREEN);  // configure as outputs
-    GPIOD_AHB->DEN |= (LED_RED | LED_YELLOW | LED_GREEN);  // enable gpio functionality
+    GPIOD_AHB->DIR |= (SEC_ROAD_LED_RED | SEC_ROAD_LED_YELLOW | SEC_ROAD_LED_GREEN);  // configure as outputs
+    GPIOD_AHB->DEN |= (SEC_ROAD_LED_RED | SEC_ROAD_LED_YELLOW | SEC_ROAD_LED_GREEN);  // enable gpio functionality
 
     /* turn all LEDs off */
-    GPIOD_AHB->DATA_Bits[LED_RED | LED_YELLOW | LED_GREEN] = 0U;
+    GPIOD_AHB->DATA_Bits[SEC_ROAD_LED_RED | SEC_ROAD_LED_YELLOW | SEC_ROAD_LED_GREEN] = 0U;
 }
 
 /**
@@ -116,6 +116,7 @@ void configureADC_TrafficLightSecondaryRoadVehicleSensor(void)
     SYSCTL->RCGCGPIO  |= (1U << 4); /* enable Run mode for GPIOE */
 
     GPIOE_AHB->AFSEL |= (1U << 3); /* configure PE3 as alternate function - this pin can only be ADC input */
+
     GPIOE_AHB->DEN &= ~((uint8_t)1 << 4); /*clear bit to configure port E as analog*/
     GPIOE_AHB->AMSEL |= (1U << 3); /* for pin PE3: analog function of the pin is enabled, the isolation is disabled, and the pin is capable of analog functions */
 
@@ -155,6 +156,7 @@ uint16_t getSensorRawInputValue(void)
  */
 void set_digital_out(om_dig_ch_t ch,trafficLight_Color_t lightColor)
 {
+    //TODO: refactor to use better structure for looking up HW address: maybe array?
     GPIOA_Type * ptr = 0;
     if(ch == OM_DIG_CH_PRIMARY_ROAD)
     {
@@ -167,22 +169,23 @@ void set_digital_out(om_dig_ch_t ch,trafficLight_Color_t lightColor)
         // Do Nothing
     }
 
+    //TODO: temporary solution but will not work if primary and secondary pin number assignments are not identical!!
     uint8_t lightOutput = 0U;
     if(TRAFFIC_LIGHT_COLOR_GREEN == lightColor){
-        lightOutput = LED_GREEN;
+        lightOutput = PRI_ROAD_LED_GREEN;
     }else if(TRAFFIC_LIGHT_COLOR_YELLOW == lightColor)
     {
-        lightOutput = LED_YELLOW;
+        lightOutput = PRI_ROAD_LED_YELLOW;
     }else if(TRAFFIC_LIGHT_COLOR_RED == lightColor)
     {
-        lightOutput = LED_RED;
+        lightOutput = PRI_ROAD_LED_RED;
     }else // (TRAFFIC_LIGHT_OFF)
     {
         lightOutput = 0U;  // turn all lights off
     }
 
     /* Set the output for the corresponding digital output channel */
-    ptr->DATA_Bits[LED_RED | LED_YELLOW | LED_GREEN] = lightOutput;
+    ptr->DATA_Bits[PRI_ROAD_LED_RED |PRI_ROAD_LED_YELLOW | PRI_ROAD_LED_GREEN] = lightOutput;
 }
 
 
