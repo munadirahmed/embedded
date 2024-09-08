@@ -74,8 +74,8 @@ void configureGPIO_TrafficLightPorts(void)
 {
     // See pg 656, section 10.3 Initialization and Configuration of Tiva™ TM4C123GH6PM Microcontroller datasheet for GPIO configuration recommendations
     // Configure Port F (Main Road LED)
-    SYSCTL->GPIOHBCTL |= (1U << 5); /* enable AHB for GPIOF */
-    SYSCTL->RCGCGPIO  |= (1U << 5); /* enable Run mode for GPIOF */
+    SYSCTL->GPIOHBCTL |= (1U << PORT_F); /* enable AHB for GPIOF */
+    SYSCTL->RCGCGPIO  |= (1U << PORT_F); /* enable Run mode for GPIOF */
 
     GPIOF_AHB->DIR |= (PRI_ROAD_LED_RED | PRI_ROAD_LED_YELLOW | PRI_ROAD_LED_GREEN);  // configure as outputs
     GPIOF_AHB->DEN |= (PRI_ROAD_LED_RED | PRI_ROAD_LED_YELLOW | PRI_ROAD_LED_GREEN);  // enable gpio functionality
@@ -84,8 +84,8 @@ void configureGPIO_TrafficLightPorts(void)
     GPIOF_AHB->DATA_Bits[PRI_ROAD_LED_RED | PRI_ROAD_LED_YELLOW | PRI_ROAD_LED_GREEN] = 0U;
 
     // Configure Port D (Secondary Road LED)
-    SYSCTL->GPIOHBCTL |= (1U << 3); /* enable AHB for GPIOD */
-    SYSCTL->RCGCGPIO  |= (1U << 3); /* enable Run mode for GPIOD */
+    SYSCTL->GPIOHBCTL |= (1U << PORT_D); /* enable AHB for GPIOD */
+    SYSCTL->RCGCGPIO  |= (1U << PORT_D); /* enable Run mode for GPIOD */
 
     GPIOD_AHB->DIR |= (SEC_ROAD_LED_RED | SEC_ROAD_LED_YELLOW | SEC_ROAD_LED_GREEN);  // configure as outputs
     GPIOD_AHB->DEN |= (SEC_ROAD_LED_RED | SEC_ROAD_LED_YELLOW | SEC_ROAD_LED_GREEN);  // enable gpio functionality
@@ -112,28 +112,29 @@ void configureADC_TrafficLightSecondaryRoadVehicleSensor(void)
     // Configure Port E3 (AIN0) as input sensor using ADC
     SYSCTL->RCGCADC |= (1U << 0); /* enable ADC0 module */
 
-    SYSCTL->GPIOHBCTL |= (1U << 4); /* enable AHB for GPIOE */
-    SYSCTL->RCGCGPIO  |= (1U << 4); /* enable Run mode for GPIOE */
+    SYSCTL->GPIOHBCTL |= (1U << PORT_E); /* enable AHB for GPIOE */
+    SYSCTL->RCGCGPIO  |= (1U << PORT_E); /* enable Run mode for GPIOE */
 
-    GPIOE_AHB->AFSEL |= (1U << 3); /* configure PE3 as alternate function - this pin can only be ADC input */
+    GPIOE_AHB->AFSEL |= ((1 << PE3) | (1 << PE1)); /* configure PE1 & PE3 as alternate function - this pin can only be ADC input */
 
-    GPIOE_AHB->DEN &= ~((uint8_t)1 << 4); /*clear bit to configure port E as analog*/
-    GPIOE_AHB->AMSEL |= (1U << 3); /* for pin PE3: analog function of the pin is enabled, the isolation is disabled, and the pin is capable of analog functions */
+    GPIOE_AHB->DEN &= ~( (1 << PE3) | (1 << PE1)); /*clear bit to configure PE1 & PE3 as analog*/
+    GPIOE_AHB->AMSEL |= ((1 << PE3) | (1 << PE1)); /* for pin PE1 & PE3: analog function of the pin is enabled, the isolation is disabled, and the pin is capable of analog functions */
 
     /********* CONFIGURE SAMPLE SEQUENCER FOR APPLICATION USAGE *********/
 
     //First disable all the sequencer for programming
     ADC0->ACTSS &= 0xFFFFFFF0UL;
 
+    uint32_t MUX0 = 0x0;  // mux0 assigned to AIN0
+    uint32_t MUX1 = 0x2;  // mux1 assigned to AIN2
+
     ADC0->EMUX |= 0x0000000FUL;  // make ADC0 always sample TODO: update sampling scheme to be more efficient
-    ADC0->SSMUX0 &= 0xFFFFFFF0UL;  // configure Mux0 to sample AIN0
-    ADC0->SSMUX0 |= (1U<<1);  // configure end sampling after the first sample
+    ADC0->SSMUX0 |= ( (MUX1 << 4)  | ((MUX0 << 0)) ) ;  // configure lowest byte for mux0 and mux1 assignments, leave all other mux's unchanged)
+    ADC0->SSCTL0 |= (1U<<5);  // configure end sampling after the first sample
     ADC0->IM &= 0xFFF0FFF0UL;  // disable all interrupt/triggers
 
     //Enable the SS0 after programming is finished (only using SS0)
     ADC0->ACTSS |= 0x00000001UL;
-
-
 
 }
 
