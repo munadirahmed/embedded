@@ -12,8 +12,15 @@
 
 typedef enum {
     OM_DIG_CH_PRIMARY_ROAD=0U,
-    OM_DIG_CH_SECONDARY_ROAD
+    OM_DIG_CH_SECONDARY_ROAD,
+    OM_TOTAL_OUTPUT_CH
 }om_dig_ch_t;
+
+typedef enum {
+    ADC_CH_SECONDARY_ROAD_VEHICLE_SENSOR=0U,
+    ADC_CH_FAULT_SENSOR,
+    TOTAL_ADC_CH
+}im_adc_ch_t;
 
 /* system clock setting [Hz] - 20MHz (confirm that RCC/RCC2 register configured for 20MHz) */
 #define SYS_CLOCK_HZ (20000000U)
@@ -54,6 +61,7 @@ void configureGPIO_TrafficLightPorts(void);
 void configureADC_TrafficLightSecondaryRoadVehicleSensor(void);
 void set_digital_out(om_dig_ch_t ch,trafficLight_Color_t lightColor);
 
-uint16_t getSensorRawInputValue(void);
+uint16_t getSensorRawInputValue(im_adc_ch_t chId);
+
 
 #endif // __BSP_H__

@@ -938,7 +938,7 @@ static inline void runTrafficLightFlashingModeSubStateMachine(trafficLightClass_
  */
 static inline void updateSecondaryRoadVehicleStatus(trafficLightClass_t *tl_sm_obj_ptr)
 {
-    uint16_t vehicleSensorData = getSensorRawInputValue();
+    uint16_t vehicleSensorData = getSensorRawInputValue(ADC_CH_SECONDARY_ROAD_VEHICLE_SENSOR);
 
     //SW Hysteresis implementation
     if( (SENSOR_VEHICLE_PRESENT_DIGITAL_TH) < vehicleSensorData )

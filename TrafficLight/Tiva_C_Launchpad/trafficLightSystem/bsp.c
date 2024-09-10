@@ -24,8 +24,13 @@
 
 
 // Declare static global variables
+static uint32_t adcRawData[TOTAL_ADC_CH];
 
 // Define local function prototypes
+
+static void readRawAdcBuffers(void);
+static inline void initiateAdc0SamplingSequence(void);
+static inline void clearAdc0SamplingSequenceInterrupt(void);
 
 // Declare function
 
@@ -39,7 +44,45 @@ __attribute__((naked)) void assert_failed (char const *file, int line) {
 // SysTick ISR function definition
 void SysTick_Handler(void) {
     //GPIOF_AHB->DATA_Bits[LED_RED] ^= LED_RED;
+    initiateAdc0SamplingSequence(); // initiate the ADC sampling
     runApplication();
+}
+
+/**
+ * Initiate the ADC0 SS0 ISR to trigger the SOC of the ADC channels
+ *
+ * @param N/A
+ *
+ * @return - N/A
+ */
+static inline void  initiateAdc0SamplingSequence(void) {
+    ADC0->PSSI |= (1U<<0);
+}
+
+/**
+ * ISR for the ADC0 SS0 interrupt - configured to execute at the EOC of the second sample and used to copy data from FIFO to structure holding appropriate ADC data
+ *
+ * @param N/A
+ *
+ * @return - N/A
+ */
+void ADCSeq0_IRQHandler(void)
+{
+    clearAdc0SamplingSequenceInterrupt();
+    // Read all the ADC values into the raw data array
+    readRawAdcBuffers();
+}
+
+/**
+ * Clear the ADC0 SS0 interrupt
+ *
+ * @param N/A
+ *
+ * @return - N/A
+ */
+static inline void clearAdc0SamplingSequenceInterrupt(void)
+{
+    ADC0->ISC |= (1U<<0); // Clear the interrupt
 }
 
 /**
@@ -128,25 +171,51 @@ void configureADC_TrafficLightSecondaryRoadVehicleSensor(void)
     uint32_t MUX0 = 0x0;  // mux0 assigned to AIN0
     uint32_t MUX1 = 0x2;  // mux1 assigned to AIN2
 
-    ADC0->EMUX |= 0x0000000FUL;  // make ADC0 always sample TODO: update sampling scheme to be more efficient
+    ADC0->EMUX |= 0x00000000UL;  // make ADC0 start sampling via SW trigger
     ADC0->SSMUX0 |= ( (MUX1 << 4)  | ((MUX0 << 0)) ) ;  // configure lowest byte for mux0 and mux1 assignments, leave all other mux's unchanged)
-    ADC0->SSCTL0 |= (1U<<5);  // configure end sampling after the first sample
+    ADC0->SSCTL0 |= ( (1U<<5) | (1U<<6) ) ;  // configure end sampling after the second sample and configure interrupt to trigger after EOC of 2nd sample
     ADC0->IM &= 0xFFF0FFF0UL;  // disable all interrupt/triggers
+    ADC0->IM |= (1 << 0);  // enable interrupt for sample sequencer 0
+
+    __NVIC_EnableIRQ(ADC0SS0_IRQn); // Enable interrupt generation in NVIC for SS0 on ADC0 module
 
     //Enable the SS0 after programming is finished (only using SS0)
     ADC0->ACTSS |= 0x00000001UL;
 
 }
 
-uint16_t getSensorRawInputValue(void)
+/**
+ * Read input values into buffer
+ *
+ * @param chId - channel ID for adc conversion result of interest
+ *
+ * @return - 12-bit conversion result for the ADC channel of interest as a 16-bit integer
+ */
+uint16_t getSensorRawInputValue(im_adc_ch_t chId)
 {
-    uint32_t sensorValue = ADC0->SSFIFO0;
+    uint32_t sensorValue = adcRawData[chId];
 
     sensorValue &= 0x00000FFFUL;
 
     return ( (uint16_t) sensorValue );
 }
 
+
+/**
+ * Read all ADC channels
+ *
+ * @param N/A
+ *
+ * @return - N/A
+ */
+void readRawAdcBuffers(void)
+{
+
+    for(uint8_t chIdx = 0; chIdx < (uint8_t)TOTAL_ADC_CH; chIdx++)
+    {
+        adcRawData[chIdx] = ADC0->SSFIFO0;
+    }
+}
 
 /**
  * Configure the System Timer (SysTick) Module to execute the SysTick ISR at the desired rate
