@@ -958,8 +958,6 @@ static inline void updateSecondaryRoadVehicleStatus(trafficLightClass_t *tl_sm_o
 
 }
 
-trafficLight_SystemFaultStatus_t testFaultStatus = NO_FAULT_DETECTED;
-
 /**
  * Check system sensors to determine if system has faulted (initial implementation uses only ADC channel data - can be expanded for multiple fault sensors)
  *
@@ -969,8 +967,23 @@ trafficLight_SystemFaultStatus_t testFaultStatus = NO_FAULT_DETECTED;
  */
 static inline void updateSystemFaultDetectionStatus(trafficLightClass_t *tl_sm_obj_ptr)
 {
-    // TODO: implement fault sensor detection
-    tl_sm_obj_ptr->systemFaultStatus =testFaultStatus;
+
+    //Get the fault sensor data
+    uint16_t faultSensorData = getSensorRawInputValue(ADC_CH_FAULT_SENSOR);
+
+    //SW Hysteresis implementation
+    if( (SENSOR_VEHICLE_PRESENT_DIGITAL_TH) < faultSensorData )
+    {
+        // Comparator above hysteretic threshold
+        tl_sm_obj_ptr->systemFaultStatus = VEHICLE_PRESENT;
+    }else if( (SENSOR_NO_VEHICLE_PRESENT_DIGITAL_TH) > faultSensorData)
+    {
+        // Comparator below hysteretic threshold
+        tl_sm_obj_ptr->systemFaultStatus = NO_VEHICLE_PRESENT;
+    }else
+    {
+        //do nothing
+    }
 
     return;
 
